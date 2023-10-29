@@ -1,0 +1,15 @@
+  std
+  loadi 2, r0
+  loadi 3, r1
+  loadi 4, r2
+  loadi 5, r3
+  loadi 7, r5 
+  and r3, r0
+  or  r2, r1
+  xor r5, r2
+  not r4
+  not r4
+  shl r2, r5
+  shr r2, r5
+
+.literal 0

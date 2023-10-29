@@ -1,0 +1,13 @@
+  std
+  loadi jr1, r4 
+  jmpr r4
+jr2:
+  loadi jr3, r4 
+  jmpr r4
+jr1:
+  loadi jr2, r4 
+  jmpr r4
+jr3:
+
+.literal 0
+

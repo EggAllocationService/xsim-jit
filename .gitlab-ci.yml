@@ -1,0 +1,238 @@
+# use the official gcc image, based on debian
+# can use verions as well, like gcc:5.2
+# see https://hub.docker.com/_/gcc/
+image: gcc
+
+build:
+  tags:
+    - ugrad
+  stage: build
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim1
+    - make xas
+    - if [ -f CMakeLists.txt ]; then cmake CMakeLists.txt; fi
+    - make
+    - cd ..
+    - cd xsim2
+    - make xas
+    - if [ -f CMakeLists.txt ]; then cmake CMakeLists.txt; fi
+    - make
+  artifacts:
+    paths:
+      - xsim1/xsim1
+      - xsim1/xas
+      - xsim2/xsim2
+      - xsim2/xas
+
+xsim1_00:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim1
+    - ./tests/test.sh 00 . xsim1
+
+xsim1_01:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim1
+    - ./tests/test.sh 01 . xsim1
+
+xsim1_02:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim1
+    - ./tests/test.sh 02 . xsim1
+
+xsim1_03:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim1
+    - ./tests/test.sh 03 . xsim1
+
+xsim2_00:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 00 . xsim2
+
+xsim2_01:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 01 . xsim2
+
+xsim2_02:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 02 . xsim2
+
+xsim2_03:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 03 . xsim2
+
+xsim2_04:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 04 . xsim2
+
+xsim2_05:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 05 . xsim2
+
+xsim2_06:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 06 . xsim2
+
+xsim2_07:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 07 . xsim2
+
+xsim2_08:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 08 . xsim2
+
+xsim2_09:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 09 . xsim2
+
+xsim2_10:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 10 . xsim2
+
+xsim2_11:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 11 . xsim2
+
+xsim2_12:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 12 . xsim2
+
+xsim2_13:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 13 . xsim2
+
+xsim2_14:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim2
+    - ./tests/test.sh 14 . xsim2
+

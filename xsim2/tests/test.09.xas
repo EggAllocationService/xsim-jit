@@ -1,0 +1,12 @@
+  std
+  loadi Stack, r15
+  loadi 42, r0
+  loadi 13, r1
+  push  r2
+  push  r3
+  pop   r2 
+  pop   r3
+
+.literal 0
+.words 512
+Stack:

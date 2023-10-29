@@ -1,0 +1,16 @@
+  std
+  loadi 0x48, r0
+  out r0
+  loadi 0x65, r0
+  out r0
+  loadi 0x6c, r0
+  out r0
+  loadi 0x6c, r0
+  out r0
+  loadi 0x6f, r0
+  out r0
+  loadi 0x0a, r0
+  out r0
+  ret
+
+.literal 0

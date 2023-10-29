@@ -1,0 +1,12 @@
+  std
+  loadi Stack, r15
+  call SayHello
+
+.literal 0
+
+SayHello:
+  loadi 0x48, r0
+  ret
+
+.words 512
+Stack:

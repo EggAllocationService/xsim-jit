@@ -1,0 +1,14 @@
+  std
+  loadi 0, r0
+  loadi 1, r1
+  loadi 2, r2
+  test  r1, r1
+  test  r1, r2
+  cmp   r1, r2
+  cmp   r1, r1
+  cmp   r2, r1
+  equ   r1, r1
+  equ   r1, r2
+
+.literal 0
+

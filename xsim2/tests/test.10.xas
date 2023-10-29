@@ -1,0 +1,22 @@
+  std
+  loadi foo, r0
+  loadi bar, r1
+  load  r0, r2
+  load  r1, r3
+  stor  r2, r1
+  stor  r3, r0
+  load  r0, r2
+  load  r1, r3
+  storb r3, r1
+  storb r2, r0
+  loadb r1, r2
+  loadb r0, r3
+  load  r0, r2
+  load  r1, r3
+
+.literal 0
+foo:
+.literal 42
+bar:
+.literal 13
+

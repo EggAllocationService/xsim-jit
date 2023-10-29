@@ -1,0 +1,10 @@
+  std
+  jmp j1
+j2:
+  jmp j3
+j1:
+  jmp j2
+j3:
+ 
+.literal 0
+

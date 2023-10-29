@@ -1,0 +1,16 @@
+  std
+  loadi 1, r1
+  loadi 2, r2
+
+  equ r1, r2
+  br brfalse
+
+  equ r1, r1
+  br brdone
+  jmp brtrue
+brtrue:
+brfalse:
+  loadi -1, r0
+brdone:
+.literal 0
+
