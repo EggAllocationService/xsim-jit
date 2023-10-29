@@ -17,6 +17,7 @@ build:
     - make
     - cd ..
     - cd xsim2
+    - rm -f *.o
     - make xas
     - if [ -f CMakeLists.txt ]; then cmake CMakeLists.txt; fi
     - make
