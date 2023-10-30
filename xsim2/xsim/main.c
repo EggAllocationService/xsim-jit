@@ -16,7 +16,7 @@ int main(int argc, char **argv) {
     printf("FATAL: Failed to allocate 64k of memory\n");
     return -2;
   }
-  
+
   // figure out how big the executable is
   struct stat program_info;
   stat(argv[2], &program_info);
@@ -47,7 +47,7 @@ int main(int argc, char **argv) {
   while (1) {
     int successful = xcpu_execute(&cpu);
     instruction_count += 1;
-    if (!successful || instruction_count >= max_instruction_count) break;
+    if (!successful || (instruction_count >= max_instruction_count) && max_instruction_count != 0) break;
   }
 
   return 0;
