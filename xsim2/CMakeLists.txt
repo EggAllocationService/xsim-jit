@@ -1,6 +1,10 @@
 cmake_minimum_required(VERSION 3.18)
-project(xsim2 C)
+project(Assignment4)
 
-set(CMAKE_C_STANDARD 99)
+set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
-add_executable(xsim2 main.c xcpu.c xcpuprnt.c xmem.c xcpu.h xis.h xmem.h)
+add_subdirectory(xsim)
+add_subdirectory(assembler)
+
+add_custom_target(BuildAll)
+add_dependencies(BuildAll xsim2 xasm)
