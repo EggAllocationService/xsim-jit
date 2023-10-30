@@ -3,8 +3,8 @@ project(Assignment4)
 
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
+set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
+
 add_subdirectory(xsim)
 add_subdirectory(assembler)
-
-add_custom_target(BuildAll)
-add_dependencies(BuildAll xsim2 xasm)

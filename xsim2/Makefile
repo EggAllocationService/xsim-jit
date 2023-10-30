@@ -1,2 +1,4 @@
+xsim2:
+	echo "Run cmake ."
 xas:
-	echo "hahhahha"
+	echo "Run cmake ."
