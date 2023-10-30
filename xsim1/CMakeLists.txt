@@ -7,5 +7,5 @@ add_executable(xsim1
         main.c
         xcpuprnt.c
         xmem.c
-        xcpu.o
         )
+target_link_libraries(xsim1  ${CMAKE_CURRENT_SOURCE_DIR}/xcpu.o)
