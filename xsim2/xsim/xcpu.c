@@ -7,6 +7,11 @@
 #include "xis.h"
 #include "xmem.h"
 
+/**
+ * Macro for generating a switch case appling an integer operation to the two registers
+*/
+#define XIS_TWO_REG_INT_OP(x, y) case x: c->regs[dest] = c->regs[dest] y c->regs[src]; break;
+
 static unsigned short load_short(unsigned short address) {
   unsigned short val;
   unsigned char tmp_data[2];
@@ -22,16 +27,11 @@ static void write_short(unsigned short value, unsigned short address) {
   xmem_store(tmp_data, address);
 }
 
-/**
- *
- */
-
 /* Use
  *   xcpu_print( c );
  * to print cpu state, where c is of type xcpu *
  * See xcpu.h for full prototype of xcpu_print()
  */
-#define XIS_TWO_REG_INT_OP(x, y) case x: c->regs[dest] = c->regs[dest] y c->regs[src]; break;
 extern int xcpu_execute(xcpu *c) {
   unsigned short instruction = load_short(c->pc);
   unsigned char opcode = instruction >> 8;
@@ -45,61 +45,61 @@ extern int xcpu_execute(xcpu *c) {
     size_t dest = XIS_REG2(instruction);
 
     switch (opcode) {
-    XIS_TWO_REG_INT_OP(I_ADD, +);
-    XIS_TWO_REG_INT_OP(I_SUB, -);
-    XIS_TWO_REG_INT_OP(I_MUL, *);
-    XIS_TWO_REG_INT_OP(I_DIV, /);
-    XIS_TWO_REG_INT_OP(I_AND, &);
-    XIS_TWO_REG_INT_OP(I_OR, |);
-    XIS_TWO_REG_INT_OP(I_XOR, ^);
-    XIS_TWO_REG_INT_OP(I_SHR, >>);
-    XIS_TWO_REG_INT_OP(I_SHL, <<);
-    case I_TEST:
-      if ((c->regs[src] & c->regs[dest]) != 0) {
-        c->state |= 1;
-      } else {
-        c->state &= ~1;
+      XIS_TWO_REG_INT_OP(I_ADD, +);
+      XIS_TWO_REG_INT_OP(I_SUB, -);
+      XIS_TWO_REG_INT_OP(I_MUL, *);
+      XIS_TWO_REG_INT_OP(I_DIV, /);
+      XIS_TWO_REG_INT_OP(I_AND, &);
+      XIS_TWO_REG_INT_OP(I_OR, |);
+      XIS_TWO_REG_INT_OP(I_XOR, ^);
+      XIS_TWO_REG_INT_OP(I_SHR, >>);
+      XIS_TWO_REG_INT_OP(I_SHL, <<);
+      case I_TEST:
+        if ((c->regs[src] & c->regs[dest]) != 0) {
+          c->state |= 1;
+        } else {
+          c->state &= ~1;
+        }
+        break;
+      case I_CMP:
+        if (c->regs[src] < c->regs[dest]) {
+          c->state |= 1;
+        } else {
+          c->state &= ~1;
+        }
+        break;
+      case I_EQU:
+        if (c->regs[src] == c->regs[dest]) {
+          c->state |= 1;
+        } else {
+          c->state &= ~1;
+        }
+        break;
+      case I_MOV:
+        c->regs[dest] = c->regs[src];
+        break;
+      case I_LOAD:
+        c->regs[dest] = load_short(c->regs[src]);
+        break;
+      case I_STOR:
+        write_short(c->regs[src], c->regs[dest]);
+        break;
+      case I_LOADB: {
+        unsigned char data[2];
+        xmem_load(c->regs[src], data);
+        c->regs[dest] = data[0];
+        break;
       }
-      break;
-    case I_CMP:
-      if (c->regs[src] < c->regs[dest]) {
-        c->state |= 1;
-      } else {
-        c->state &= ~1;
+      case I_STORB: {
+        unsigned char data[2];
+        xmem_load(c->regs[dest], data);
+        data[0] = (unsigned char) (c->regs[src] & 0xFF);
+        xmem_store(data, c->regs[dest]);
+        break;
       }
-      break;
-    case I_EQU:
-      if (c->regs[src] == c->regs[dest]) {
-        c->state |= 1;
-      } else {
-        c->state &= ~1;
-      }
-      break;
-    case I_MOV:
-      c->regs[dest] = c->regs[src];
-      break;
-    case I_LOAD:
-       c->regs[dest] = load_short(c->regs[src]);
-      break;
-    case I_STOR:
-      write_short(c->regs[src], c->regs[dest]);
-      break;
-    case I_LOADB: {
-      unsigned char data[2];
-      xmem_load(c->regs[src], data);
-      c->regs[dest] = data[0];
-      break;
-    }
-    case I_STORB: {
-      unsigned char data[2];
-      xmem_load(c->regs[dest], data);
-      data[0] = (unsigned char) (c->regs[src] & 0xFF);
-      xmem_store(data, c->regs[dest]);
-      break;
-    }
-    default: 
-      is_invalid = 1;
-      break;
+      default: 
+        is_invalid = 1;
+        break;
     }
   } else if (XIS_NUM_OPS(opcode) == 0) {
     // simple instructions
@@ -153,6 +153,7 @@ extern int xcpu_execute(xcpu *c) {
       case I_OUT:
         printf("%c", (char) c->regs[reg]);
         break;
+
       // immediate mode instructions
       case I_BR:
         if ((c->state & 1) == 1) {
@@ -169,8 +170,7 @@ extern int xcpu_execute(xcpu *c) {
         is_invalid = 1;
         break;
     } 
-  } else {
-    // extended instructions
+  } else { // extended instructions
     
     unsigned short extended_value = load_short(c->pc);
     switch (opcode) {
@@ -198,5 +198,3 @@ extern int xcpu_execute(xcpu *c) {
   }
   return 1;
 }
-
-
