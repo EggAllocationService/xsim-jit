@@ -1,3 +1,4 @@
+  std                      # turn on debugging for first few instructions
   loadi Stack, r15
   call main
 
@@ -9,6 +10,7 @@ Stack:
 main:
   loadi hellostr, r0       # load pointer to the string
   push r0                  # pust pointer as a parameter
+  cld                      # turn off debugging
   call puts                # call puts to output string
   call puts
   call puts

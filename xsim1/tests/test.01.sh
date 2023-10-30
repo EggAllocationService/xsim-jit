@@ -1,3 +1,3 @@
 #!/bin/sh
 
-$1 95 tests/test.xo
+$1 3 tests/test.xo

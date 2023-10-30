@@ -72,6 +72,17 @@ xsim1_03:
     - cd xsim1
     - ./tests/test.sh 03 . xsim1
 
+xsim1_04:
+  tags:
+    - ugrad
+  stage: test
+  except:
+    variables:
+      - $CI_COMMIT_MESSAGE =~ /NOTEST/
+  script:
+    - cd xsim1
+    - ./tests/test.sh 04 . xsim1
+
 xsim2_00:
   tags:
     - ugrad

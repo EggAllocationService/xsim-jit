@@ -16,3 +16,19 @@ Registers:
       r08:0000 r09:0000 r10:0000 r11:0000 r12:0000 r13:0000 r14:0000 r15:040a
 Next instruction: loadi 1064, r0
 
+PC: 0410, State: 0002
+Registers: 
+      r00:0428 r01:0000 r02:0000 r03:0000 r04:0000 r05:0000 r06:0000 r07:0000
+      r08:0000 r09:0000 r10:0000 r11:0000 r12:0000 r13:0000 r14:0000 r15:040a
+Next instruction: push r0
+
+PC: 0412, State: 0002
+Registers: 
+      r00:0428 r01:0000 r02:0000 r03:0000 r04:0000 r05:0000 r06:0000 r07:0000
+      r08:0000 r09:0000 r10:0000 r11:0000 r12:0000 r13:0000 r14:0000 r15:0408
+Next instruction: cld 
+
+Hello world!
+Hello world!
+Hello world!
+Hello world!

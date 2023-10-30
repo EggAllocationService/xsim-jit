@@ -1,3 +1,3 @@
 #!/bin/sh
 
-$1 0 tests/test.xo
+$1 190 tests/test.xo
