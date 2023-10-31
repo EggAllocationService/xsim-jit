@@ -1,20 +1,14 @@
 #ifndef XCPU_H
 #define XCPU_H
-
-#define X_MAX_REGS 16                 /* maximum size of the data stack */
-
 /* CPU context struct */
+
+#include "xcpudefs.h"
 
 #define X_STATE_COND_FLAG     0x0001 /* Last comparison result       */
 #define X_STATE_DEBUG_ON      0x0002 /* CPU is is debug mode         */
 
 #define X_STACK_REG           15     /* stack register */
 
-typedef struct xcpu_context {        
-  unsigned short regs[X_MAX_REGS];    /* general register file */
-  unsigned short pc;                  /* program counter */
-  unsigned short state;               /* state register */
-} xcpu;
 
 
 /* title: execute next instruction

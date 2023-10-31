@@ -57,13 +57,3 @@ extern void xmem_load(unsigned short addr, unsigned char data[2]) {
     exit(1);
   }
 }
-
-/**
- * title: get a pointer to the raw physical memory of the virtual CPU, as well as how much was allocated
-*/
-extern xmem_info_t *xmem_get_mem_info() {
-  xmem_info_t *res = malloc(sizeof(xmem_info_t));
-  res->memory = memory;
-  res->size = phys_size;
-  return res;
-}

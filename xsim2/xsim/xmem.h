@@ -30,18 +30,4 @@ extern void xmem_store( unsigned char data[2], unsigned short addr );
  */
 extern void xmem_load( unsigned short addr, unsigned char data[2] ); 
 
-
-/*
-    The below items are required for my JIT compiler to function properly.
-*/
-
-typedef struct xmem_info_t {
-    int size;
-    unsigned char *memory;
-} xmem_info_t;
-
-/**
- * title: get a pointer to the raw physical memory of the virtual CPU, as well as how much was allocated
-*/
-extern xmem_info_t *xmem_get_mem_info();
 #endif
