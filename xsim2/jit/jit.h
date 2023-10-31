@@ -13,7 +13,7 @@ typedef struct jit_state {
  *  If this function returns a 0, then the program should halt
  *  Else, the program should prepare and execute the next address
 */
-typedef unsigned int (*jit_func)(short a, short b);
+typedef unsigned int (*jit_func)(xcpu *state);
 
 typedef struct jit_prepared_function {
     jit_func function;

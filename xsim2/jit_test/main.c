@@ -10,6 +10,6 @@ int main() {
     fclose(fp);
 
     // execute generated code
-    printf("Result(8, 13): %d\n", (unsigned short) result->function(8, 13));
+    printf("Result(8, 13): %d\n", (unsigned short) result->function(8));
     return 0;
 }
