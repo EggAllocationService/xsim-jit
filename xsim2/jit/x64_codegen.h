@@ -40,26 +40,25 @@ extern int x64_map_call(unsigned char *dest, int pos, unsigned char reg);
 /**
  * Encodes an x64 MOVZX instruction with a indirect source with offset, and a register target.
  * 64 bit addressing, 16 bit operands
- * `base` is the base register for the indirect source
- * `index` is the index register for the indirect source
- * `scale` is the scale for the index register, number between 0-4. actual scale will be `2^scale`
+ * `source` is the base register for the indirect source
  * `offset` is the offset from the base register
+ * `target` is where the zero-extended 16 bit word will be placed
 */
-extern int x64_map_movzx_indirect2reg(unsigned char *dest, int pos, unsigned char target, unsigned char source, unsigned char offset);
+extern int x64_map_movzx_indirect2reg(unsigned char *dest, int pos, unsigned char target, unsigned char source, unsigned int offset);
 
 /**
  * Encodes an x64 MOV instruction targeting an indirect register with 8 bit offset, with a register source
  * 64 bit addressing, 16 bit operands
 */
-extern int x64_map_mov_reg2indirect(unsigned char *dest, int pos, unsigned char source, unsigned char target, unsigned char offset);
+extern int x64_map_mov_reg2indirect(unsigned char *dest, int pos, unsigned char source, unsigned char target, unsigned int offset);
 
 /**
  * Encodes an x64 MOV instruction moving an immediate value to an indirect register with an 8 bit offset
 */
 extern int x64_map_mov_imm2indirect(unsigned char *dest, int pos, unsigned short value, unsigned char target, unsigned char offset);
 
-/**
- * Integer operations
+/*
+  Integer operations
 */
 
 /**
@@ -82,3 +81,45 @@ extern int x64_map_sub_indirect(unsigned char *dest, int pos, unsigned char reg,
  * Operation performed is ax *= [rm + offset];
 */
 extern int x64_map_mul_indirect(unsigned char *dest, int pos, unsigned char rm, unsigned char offset);
+
+/**
+ * Encodes the x64 `DIV` instruction for 16 bit operands
+ * Returns the number of bytes written
+ * Operation performed is ax /= [rm + offset];
+*/
+extern int x64_map_div_indirect(unsigned char *dest, int pos, unsigned char rm, unsigned char offset);
+
+/**
+ * Encodes the x64 `AND` instruction for 16 bit operands
+ * Returns the number of bytes written
+ * Operation performed is [target + offset] &= reg;
+*/
+extern int x64_map_and_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset);
+
+/**
+ * Encodes the x64 `OR` instruction for 16 bit operands
+ * Returns the number of bytes written
+ * Operation performed is [target + offset] |= reg;
+*/
+extern int x64_map_or_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset);
+
+/**
+ * Encodes the x64 `XOR` instruction for 16 bit operands
+ * Returns the number of bytes written
+ * Operation performed is [target + offset] ^= reg;
+*/
+extern int x64_map_xor_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset);
+
+/**
+ * Encodes the x64 `SHR` instruction for 16 bit operands
+ * Returns the number of bytes written
+ * Operation performed is [target + offset] >> %cx;
+*/
+extern int x64_map_shr_indirect(unsigned char *dest, int pos, unsigned char target, unsigned char offset);
+
+/**
+ * Encodes the x64 `SHL` instruction for 16 bit operands
+ * Returns the number of bytes written
+ * Operation performed is [target + offset] << %cx;
+*/
+extern int x64_map_shl_indirect(unsigned char *dest, int pos, unsigned char target, unsigned char offset);

@@ -1,5 +1,5 @@
 
-#define REX(w, reg, rm) dest[pos] = 0b01000000 | (w << 4) | ((reg & 8) >> 1) | (( rm & 8) >> 3);
+#define REX(w, reg, rm) dest[pos] = 0x40 | (w << 3) | ((reg & 8) >> 1) | (( rm & 8) >> 3);
 
 /**
  * Encodes the x64 instruction for a 64 bit move from `reg1` to `reg2`
@@ -15,15 +15,6 @@ int x64_map_move_reg2reg(unsigned char *dest, int pos, unsigned char reg1, unsig
 extern int x64_map_ret(unsigned char *dest, int pos) {
     dest[pos] = 0xc3; // RET
     return 1;
-}
-
-extern int x64_map_imul(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2) {
-    dest[pos] = 0x66; // 16 bit operand size, 64 bit addressing
-    dest[pos + 1] = REX(0, reg1, reg2); // REX prefix for x86_64 registers
-    dest[pos + 2] = 0x0F; // required prefix
-    dest[pos + 3] = 0xAF; // IMUL, two registers
-    dest[pos + 4] = 0b11000000 | ((reg1 & 7) << 3) | (reg2 & 7); // encode registers
-    return 5;
 }
 
 extern int x64_map_push(unsigned char *dest, int pos, unsigned char reg) {
@@ -53,23 +44,27 @@ extern int x64_map_move_imm2reg(unsigned char *dest, int pos, unsigned char reg,
     return 10;
 }
 
-extern int x64_map_movzx_indirect2reg(unsigned char *dest, int pos, unsigned char reg, unsigned char base, unsigned char offset) {
+extern int x64_map_movzx_indirect2reg(unsigned char *dest, int pos, unsigned char reg, unsigned char base, unsigned int offset) {
     int initialpos = pos;
     dest[pos++] = REX(1, reg, base); // REX prefix for x86_64 registers
     dest[pos++] = 0x0F; // required prefix
     dest[pos++] = 0xB7; // MOVZX, r/m16 -> r64
-    dest[pos++] = 0b01000000 | ((reg & 7) << 3) | (base & 7); // MODRM with 8 bit immediate  offset
-    dest[pos++] = offset;
+    dest[pos++] = 0b10000000 | ((reg & 7) << 3) | (base & 7); // MODRM with 16 bit immediate  offset
+    for (int i = 0; i < 4; i++) {
+        dest[pos++] = (offset >> (i * 8)) & 0xFF;
+    }
     return pos - initialpos;
 }
 
-extern int x64_map_mov_reg2indirect(unsigned char *dest, int pos, unsigned char source, unsigned char target, unsigned char offset) {
+extern int x64_map_mov_reg2indirect(unsigned char *dest, int pos, unsigned char source, unsigned char target, unsigned int offset) {
     int initialpos = pos;
     dest[pos++] = 0x66; // 16 bit operands 
     dest[pos++] = REX(0, source, target); // REX prefix for x86_64 registers
     dest[pos++] = 0x89; // MOV r/m16 -> r16
-    dest[pos++] = 0b01000000 | ((source & 7) << 3) | (target & 7); // MODRM with 8 bit immediate  offset
-    dest[pos++] = offset;
+    dest[pos++] = 0b10000000 | ((source & 7) << 3) | (target & 7); // MODRM with 16 bit immediate  offset
+    for (int i = 0; i < 4; i++) {
+        dest[pos++] = (offset >> (i * 8)) & 0xFF;
+    }
     return pos - initialpos;
 }
 
@@ -116,10 +111,61 @@ extern int x64_map_sub_indirect(unsigned char *dest, int pos, unsigned char reg,
 
 extern int x64_map_mul_indirect(unsigned char *dest, int pos, unsigned char rm, unsigned char offset) {
     int initalpos = pos;
-    dest[pos++] = 0x66; 
-    dest[pos++] = REX(0, 0, rm);
+    dest[pos++] = 0x66;
+    if (rm > 7) {
+        dest[pos++] = REX(0, 0, rm);
+    }
     dest[pos++] = 0xF7; // MUL r/m -> AX
-    dest[pos++] = 0b01000000 | (rm & 7); // modrm 
+    dest[pos++] = 0b01100000 | (rm & 7); // modrm, ext = 4
     dest[pos++] = offset;
     return pos - initalpos;
 }
+
+extern int x64_map_div_indirect(unsigned char *dest, int pos, unsigned char rm, unsigned char offset) {
+    int initalpos = pos;
+    dest[pos++] = 0x66; 
+    if (rm > 7) {
+        dest[pos++] = REX(0, 0, rm);
+    }
+    dest[pos++] = 0xF7; // DIV r/m -> AX
+    dest[pos++] = 0b01110000 | (rm & 7); // modrm, ext = 6
+    dest[pos++] = offset;
+    return pos - initalpos;
+}
+
+extern int x64_map_and_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset) {
+    INDIRECT_OP_OFFSET_FROMREG(0x21);
+}
+
+extern int x64_map_or_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset) {
+    INDIRECT_OP_OFFSET_FROMREG(0x09);
+}
+
+extern int x64_map_xor_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset) {
+    INDIRECT_OP_OFFSET_FROMREG(0x31);
+}
+
+extern int x64_map_shr_indirect(unsigned char *dest, int pos, unsigned char rm, unsigned char offset) {
+    int initalpos = pos;
+    dest[pos++] = 0x66; 
+    if (rm > 7) {
+        dest[pos++] = REX(0, 0, rm);
+    }
+    dest[pos++] = 0xD3; // SHR CX -> r/m 
+    dest[pos++] = 0b01101000 | (rm & 7); // modrm, ext = 5
+    dest[pos++] = offset;
+    return pos - initalpos;
+}
+
+extern int x64_map_shl_indirect(unsigned char *dest, int pos, unsigned char rm, unsigned char offset) {
+    int initalpos = pos;
+    dest[pos++] = 0x66; 
+    if (rm > 7) {
+        dest[pos++] = REX(0, 0, rm);
+    }
+    dest[pos++] = 0xD3; // SHL CX -> r/m 
+    dest[pos++] = 0b01100000 | (rm & 7); // modrm, ext = 4
+    dest[pos++] = offset;
+    return pos - initalpos;
+}
+

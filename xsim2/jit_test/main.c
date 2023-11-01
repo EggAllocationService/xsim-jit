@@ -21,17 +21,12 @@ int main() {
         xmem_store(tmp, i);
     }
 
-    // initalize cpu state
-    xcpu cpu;
-    cpu.pc = 0;
-    cpu.state = 0;
-    memset(cpu.regs, 0, X_MAX_REGS * 2);
 
     xmem_virt_mem mem = xmem_get_virt_mem();
     
     jit_init_state();
 
-    jit_prepared_function *entry = jit_prepare(mem.memory, 0, mem.size /  4);
+    jit_prepared_function *entry = jit_prepare(mem.memory, 0);
     // dump generated assembly to disk
     FILE *fp = fopen("jit_test.bin", "wb");
     fwrite(entry->function, entry->generated_size, 1, fp);

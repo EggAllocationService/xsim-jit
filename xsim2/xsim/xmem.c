@@ -69,3 +69,4 @@ extern xmem_virt_mem xmem_get_virt_mem() {
   result.memory = memory;
   result.size = phys_size;
   return result;
+}
