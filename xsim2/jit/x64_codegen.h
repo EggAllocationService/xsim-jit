@@ -69,6 +69,13 @@ extern int x64_map_mov_imm2indirect(unsigned char *dest, int pos, unsigned short
 extern int x64_map_add_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset);
 
 /**
+ * Encodes the x64 `ADD` instruction for 64 bit operands
+ * This variant takes two register operands
+ * Operation performed is rm = rm + reg
+*/
+extern int x64_map_add_reg2reg(unsigned char *dest, int pos, unsigned char rm, unsigned char reg);
+
+/**
  * Encodes the x64 `SUB` instruction for 16 bit operands
  * Returns the number of bytes written
  * Operation performed is [target + offset] -= reg;
@@ -123,3 +130,14 @@ extern int x64_map_shr_indirect(unsigned char *dest, int pos, unsigned char targ
  * Operation performed is [target + offset] << %cx;
 */
 extern int x64_map_shl_indirect(unsigned char *dest, int pos, unsigned char target, unsigned char offset);
+
+/*
+  Some utility instructions
+*/
+
+/**
+ * Encodes the x64 `BSWAP` instruction (16 bit word)
+ * `reg` is the 16 bit register that will have it's bytes swapped
+*/
+extern int x64_map_bswap_r16(unsigned char *dest, int pos, unsigned char reg);
+

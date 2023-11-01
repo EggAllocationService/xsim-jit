@@ -105,6 +105,16 @@ extern int x64_map_add_indirect(unsigned char *dest, int pos, unsigned char reg,
     INDIRECT_OP_OFFSET_FROMREG(0x01);
 }
 
+extern int x64_map_add_reg2reg(unsigned char *dest, int pos, unsigned char rm, unsigned char reg) {
+    int initalpos = pos;
+    if (rm > 7 || reg > 7) {
+        dest[pos++] = REX(1, reg, rm); // for x86_64 registers
+    }
+    dest[pos++] = 0x01; // ADD reg -> rm
+    dest[pos++] = 0b11000000 | ((reg & 7) << 3) | (rm & 7);
+    return pos - initalpos;
+}
+
 extern int x64_map_sub_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset) {
     INDIRECT_OP_OFFSET_FROMREG(0x29);
 }
@@ -169,3 +179,13 @@ extern int x64_map_shl_indirect(unsigned char *dest, int pos, unsigned char rm, 
     return pos - initalpos;
 }
 
+extern int x64_map_bswap_r16(unsigned char *dest, int pos, unsigned char reg) {
+    int initialpos = pos;
+    dest[pos++] = 0x66; // 16 bit operands
+    if (reg > 7) {
+        dest[pos++] = REX(0, 0, reg);
+    }
+    dest[pos++] = 0x0F; // required prefix
+    dest[pos++] = 0xC8 | (reg & 7); // BSWAP r16
+    return pos - initialpos;
+}

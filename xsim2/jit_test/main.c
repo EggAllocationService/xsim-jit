@@ -3,6 +3,7 @@
 #include "xcpudefs.h"
 #include <string.h>
 #include "xmem.h"
+#include "xcpu.h"
 
 int main() {
         
@@ -38,5 +39,6 @@ int main() {
 
     // execute generated code
     entry->function(&cpu);
+    xcpu_print(&cpu);
     return 0;
 }

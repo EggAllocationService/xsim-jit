@@ -243,7 +243,19 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                         break;
                     }
                     case I_LOAD: {
-
+                        LOAD_VREG_TO_SCRATCH(src);
+                        // compute effective address with src + mem base
+                        gen_ptr += x64_map_add_reg2reg(memory, gen_ptr, 
+                                SCRATCH_REG, VMEM_BASE_REG);
+                        // load 16 bit word from virtual memory
+                        gen_ptr += x64_map_movzx_indirect2reg(memory, gen_ptr,
+                                SCRATCH_REG_2, SCRATCH_REG, 0);
+                        // the loaded word is in big-endian format, but x64 is little endian
+                        // therefore, we must swap the bytes around using the BSWAP instruction
+                        gen_ptr += x64_map_bswap_r16(memory, gen_ptr,
+                                SCRATCH_REG_2);
+                        // write the swapped integer to the appropriate register
+                        STORE_REG_TO_VREG(SCRATCH_REG_2, dest);
                         break;
                     }
 
