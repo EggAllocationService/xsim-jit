@@ -38,6 +38,22 @@ extern int x64_map_move_imm2reg(unsigned char *dest, int pos, unsigned char reg,
 extern int x64_map_call(unsigned char *dest, int pos, unsigned char reg);
 
 /**
+ * Encodes an x64 MOVZX instruction with a indirect source with offset, and a register target.
+ * 64 bit addressing, 16 bit operands
+ * `base` is the base register for the indirect source
+ * `index` is the index register for the indirect source
+ * `scale` is the scale for the index register, number between 0-4. actual scale will be `2^scale`
+ * `offset` is the offset from the base register
+*/
+extern int x64_map_movzx_indirect2reg(unsigned char *dest, int pos, unsigned char target, unsigned char source, unsigned char offset);
+
+/**
+ * Encodes an x64 MOV instruction targeting an indirect register with 8 bit offset, with a register source
+ * 64 bit addressing, 16 bit operands
+*/
+extern int x64_map_mov_reg2indirect(unsigned char *dest, int pos, unsigned char source, unsigned char target, unsigned char offset);
+
+/**
  * Integer operations
 */
 

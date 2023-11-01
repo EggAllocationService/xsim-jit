@@ -51,6 +51,36 @@ extern int x64_map_move_imm2reg(unsigned char *dest, int pos, unsigned char reg,
     return 10;
 }
 
+extern int x64_map_movzx_indirect2reg(unsigned char *dest, int pos, unsigned char reg, unsigned char base, unsigned char offset) {
+    int initialpos = pos;
+    dest[pos++] = 0b01001000 | ((reg & 8) >> 1) | ((base & 8) >> 3); // REX prefix for x86_64 registers
+    dest[pos++] = 0x0F; // required prefix
+    dest[pos++] = 0xB7; // MOVZX, r/m16 -> r64
+    dest[pos++] = 0b01000000 | ((reg & 7) << 3) | (base & 7); // MODRM with 8 bit immediate  offset
+    dest[pos++] = offset;
+    return pos - initialpos;
+}
+
+extern int x64_map_mov_reg2indirect(unsigned char *dest, int pos, unsigned char source, unsigned char target, unsigned char offset) {
+    int initialpos = pos;
+    dest[pos++] = 0x66; // 16 bit operands 
+    dest[pos++] = 0b01000000 | ((source & 8) >> 1) | ((target & 8) >> 3); // REX prefix for x86_64 registers
+    dest[pos++] = 0x89; // MOV r/m16 -> r16
+    dest[pos++] = 0b01000000 | ((source & 7) << 3) | (target & 7); // MODRM with 8 bit immediate  offset
+    dest[pos++] = offset;
+    return pos - initialpos;
+}
+
+extern int x64_map_call(unsigned char *dest, int pos, unsigned char reg) {
+    int initalpos = pos;
+    if (reg > 7) {
+        dest[pos++] = 0x40 | ((reg & 8) >> 3); // REX prefix for x86_64 registers
+    }
+    dest[pos++] = 0xFF;
+    dest[pos++] = 0xD0 | (reg & 7); // CALL r64
+    return pos - initalpos;
+}
+
 extern int x64_map_add(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2) {
     int intitialpos = pos;
     dest[pos] = 0x66;

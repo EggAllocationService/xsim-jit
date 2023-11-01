@@ -30,4 +30,21 @@ extern void xmem_store( unsigned char data[2], unsigned short addr );
  */
 extern void xmem_load( unsigned short addr, unsigned char data[2] ); 
 
+
+/**
+ * Struct for getting a sized pointer to the virtual memory
+ * This is required for my JIT compiler to be able to compile functions
+*/
+typedef struct {
+    unsigned char *memory;
+    int size;
+} xmem_virt_mem;
+
+/**
+ * title: get a pointer to the virtual memory
+ * param: none
+ * function: returns a pointer to the virtual memory
+ * returns: xmem_virt_mem struct
+*/
+extern xmem_virt_mem xmem_get_virt_mem();
 #endif

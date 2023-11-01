@@ -57,3 +57,15 @@ extern void xmem_load(unsigned short addr, unsigned char data[2]) {
     exit(1);
   }
 }
+
+/**
+ * title: get a pointer to the virtual memory
+ * param: none
+ * function: returns a pointer to the virtual memory
+ * returns: xmem_virt_mem struct
+ */
+extern xmem_virt_mem xmem_get_virt_mem() {
+  xmem_virt_mem result;
+  result.memory = memory;
+  result.size = phys_size;
+  return result;

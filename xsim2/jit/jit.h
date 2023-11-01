@@ -2,18 +2,22 @@
 #define JIT_H_DEF
 #include "xcpudefs.h"
 
-typedef struct jit_state {
-    unsigned char guest_debug_bit;
-} jit_state;
+
 
 /**
- *  Translated portion of the guest machine code.
- *  On return, `cpu_state->pc` will be the address to be executed next
- *  
- *  If this function returns a 0, then the program should halt
- *  Else, the program should prepare and execute the next address
+ *  Translated X rou tine
 */
-typedef unsigned int (*jit_func)(xcpu *state);
+typedef void (*jit_func)(xcpu *state);
+
+/**
+ * Debug function called after every instruction if the debug bit is set
+*/
+typedef jit_func jit_debug_func;
+
+typedef struct jit_state {
+    unsigned char guest_debug_bit;
+    jit_debug_func debug_function;
+} jit_state;
 
 typedef struct jit_prepared_function {
     jit_func function;
@@ -28,6 +32,17 @@ typedef struct jit_prepared_function {
  * 
  * `program` should already be loaded with 
 */
-extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short address, int max_instructions, jit_state *state);
+extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short address, int max_instructions);
+
+/**
+ * Initializes the internal state of the JIT compiler
+ * Call this before trying to prepare any functions
+*/
+extern void jit_init_state();
+
+/**
+ * Sets the debug function to be called when the debug bit is set
+*/
+extern void jit_set_debug_function(jit_debug_func func);
 
 #endif

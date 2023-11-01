@@ -5,4 +5,4 @@ set(CMAKE_C_STANDARD 99)
 
 add_executable(testjit main.c)
 
-target_link_libraries(testjit xjit)
+target_link_libraries(testjit xjit xsimlib)
