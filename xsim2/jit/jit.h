@@ -32,7 +32,7 @@ typedef struct jit_prepared_function {
  * 
  * `program` should already be loaded with 
 */
-extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short address, int max_instructions);
+extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short address);
 
 /**
  * Initializes the internal state of the JIT compiler

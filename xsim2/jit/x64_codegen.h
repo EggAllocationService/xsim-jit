@@ -54,26 +54,31 @@ extern int x64_map_movzx_indirect2reg(unsigned char *dest, int pos, unsigned cha
 extern int x64_map_mov_reg2indirect(unsigned char *dest, int pos, unsigned char source, unsigned char target, unsigned char offset);
 
 /**
+ * Encodes an x64 MOV instruction moving an immediate value to an indirect register with an 8 bit offset
+*/
+extern int x64_map_mov_imm2indirect(unsigned char *dest, int pos, unsigned short value, unsigned char target, unsigned char offset);
+
+/**
  * Integer operations
 */
 
 /**
  * Encodes the x64 `ADD` instruction for 16 bit operands
  * Returns the number of bytes written
- * Operation performed is reg1 = reg1 + reg2
+ * Operation performed is [target + offset] += reg;
 */
-extern int x64_map_add(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2);
+extern int x64_map_add_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset);
 
 /**
  * Encodes the x64 `SUB` instruction for 16 bit operands
  * Returns the number of bytes written
- * Operation performed is reg1 = reg1 - reg2
+ * Operation performed is [target + offset] -= reg;
 */
-extern int x64_map_sub(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2);
+extern int x64_map_sub_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset);
 
 /**
- * Encodes the x64 `IMUL` instruction for 16 bit operands
+ * Encodes the x64 `MUL` instruction for 16 bit operands
  * Returns the number of bytes written
- * Operation performed is reg1 = reg1 * reg2
+ * Operation performed is ax *= [rm + offset];
 */
-extern int x64_map_imul(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2);
+extern int x64_map_mul_indirect(unsigned char *dest, int pos, unsigned char rm, unsigned char offset);
