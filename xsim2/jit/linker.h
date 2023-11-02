@@ -5,8 +5,6 @@
 #include "linkedlist.h"
 
 enum LINK_REQUEST_TYPE {
-    LINK_JUMP_LONG,
-    LINK_CALL_LONG,
     LINK_JUMP_REL,
     LINK_BRANCH_REL
 };

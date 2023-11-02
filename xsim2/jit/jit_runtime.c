@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include "jit.h"
+#include "jit_runtime.h"
+#include "x64_codegen.h"
 
 extern void calc_flags_test(unsigned short src, unsigned short dest, xcpu *c) {
     if ((src & dest) != 0) {
@@ -43,17 +45,18 @@ extern unsigned long compile_or_get_cached_addr(unsigned char *memory, unsigned 
     }
     if (target == NULL) {
         // target function is not prepared
-        target = jit_prepare(memory, address);
+        target = jit_prepare(memory, address, 0);
         ll_add_front(state->function_cache, target);
-       // printf("JIT: Compiled simulation func starting at PC=%x to %lx\n", address, (unsigned long)target->function);
-        // dump generated assembly to disk
+#ifndef NDEBUG
         char * filename = malloc(80);
-        sprintf(filename, "jit_func_%x.bin", address);
+        sprintf(filename, "jit_func_%x_%lx.bin", address, (unsigned long) target->function);
         FILE *fp = fopen(filename, "wb");
         fwrite(target->function, target->generated_size, 1, fp);
         fclose(fp);
-       // printf("Wrote %d bytes to %s\n\n", target->generated_size, filename);
         free(filename);
+#endif
+       // printf("Wrote %d bytes to %s\n\n", target->generated_size, filename);
+
     }
 
     ll_iterator_destroy(iter);
@@ -69,6 +72,15 @@ extern unsigned long jump_dynamic(unsigned char *memory, unsigned short address)
     return compile_or_get_cached_addr(memory, address) + PREAMBLE_LENGTH;
 }
 
-extern void trap_print_char(char a) {
-    printf("%c\n", a);
+
+#define RAX 0
+
+extern unsigned long call_static(unsigned char *memory, unsigned short address, unsigned long call_start) {
+    unsigned long call_target = compile_or_get_cached_addr(memory, address);
+    unsigned char *target = (unsigned char *) (call_start);
+    for (int i = 0; i < CALL_STATIC_OVERWRITE_SIZE; i++) {
+        target[i] = 0x90; // NOOP
+    }
+    x64_map_move_imm2reg(target, 0, RAX, call_target);
+    return call_target;
 }

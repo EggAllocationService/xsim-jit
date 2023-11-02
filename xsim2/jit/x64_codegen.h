@@ -44,7 +44,7 @@ extern int x64_map_call(unsigned char *dest, int pos, unsigned char reg);
  * Encodes the x64 instruction for a 64 bit move from `reg1` to `reg2`
  * Returns the number of bytes written
 */
-extern int x64_map_move_reg2reg(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2);
+extern int x64_map_mov_reg2reg(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2);
 
 /**
  * Encodes an x64 MOVZX instruction with a indirect source with offset, and a register target.
@@ -56,10 +56,22 @@ extern int x64_map_move_reg2reg(unsigned char *dest, int pos, unsigned char reg1
 extern int x64_map_movzx_indirect2reg(unsigned char *dest, int pos, unsigned char target, unsigned char source, unsigned int offset);
 
 /**
- * Encodes an x64 MOV instruction targeting an indirect register with 8 bit offset, with a register source
+ * Encodes an x64 MOV instruction targeting an indirect register with 32 bit offset, with a register source
  * 64 bit addressing, 16 bit operands
 */
 extern int x64_map_mov_reg2indirect(unsigned char *dest, int pos, unsigned char source, unsigned char target, unsigned int offset);
+
+/**
+ * Encodes an x64 MOV instruction targeting an indirect register with 32 bit offset, with a register source
+ * 64 bit addressing, 64 bit operands
+*/
+extern int x64_map_mov_reg2indirect64(unsigned char *dest, int pos, unsigned char source, unsigned char target, unsigned int offset);
+
+/**
+ * Encodes an x64 MOV instruction targeting an indirect register with 32 bit offset, with a register source
+ * 64 bit addressing, 64 bit operands
+*/
+extern int x64_map_mov_indirect2reg64(unsigned char *dest, int pos, unsigned char target, unsigned char source, unsigned int offset);
 
 /**
  * Encodes an x64 MOV instruction moving an immediate value to an indirect register with an 8 bit offset

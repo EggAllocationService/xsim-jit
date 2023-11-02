@@ -26,9 +26,8 @@ int main() {
     xmem_virt_mem mem = xmem_get_virt_mem();
     
     jit_init_state();
-    jit_set_debug_function(xcpu_print);
 
-    jit_prepared_function *entry = jit_prepare(mem.memory, 0);
+    jit_prepared_function *entry = jit_prepare(mem.memory, 0, 1);
 
 
     xcpu cpu;
@@ -36,7 +35,5 @@ int main() {
 
     // execute generated code
     entry->function(&cpu);
-    cpu.pc = 0x38;
-    xcpu_print(&cpu);
-    return 0;
+    return 15;
 }

@@ -5,9 +5,13 @@
 
 
 /**
- *  Translated X rou tine
+ *  Function that emulates running some X-CPU instructions on a given cpu state
+ *  @returns either 1 or 0, indicating if the function panicked
+ *
+ *  If returning 1, the caller should then use an interpreter, as some code was encountered that couldn't be JIT
+ *  compiled
 */
-typedef void (*jit_func)(xcpu *state);
+typedef unsigned char (*jit_func)(xcpu *state);
 
 /**
  * Debug function called after every instruction if the debug bit is set
@@ -15,6 +19,8 @@ typedef void (*jit_func)(xcpu *state);
 typedef jit_func jit_debug_func;
 
 typedef struct jit_state {
+    unsigned long escape_hatch;
+    unsigned long escape_registers[7];
     unsigned char guest_debug_bit;
     jit_debug_func debug_function;
     linked_list_t function_cache;
@@ -33,10 +39,13 @@ typedef struct jit_prepared_function {
  * 
  * `program` should already be loaded with the guest program
  *
- * Note that the prepared function stores static references to *program. It is unsafe to call the generated code if
+ * Note that the prepared function stores inline references to *program. It is unsafe to call the generated code if
  * `program` has been freed
+ *
+ * `is_entrypoint` Should be set to 1 if the generated code will be used as the entrypoint to the virtual program
+ * This parameter allows the jit compiler to set an escape hatch to use if the debug bit gets set
 */
-extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short address);
+extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short address, unsigned char is_entrypoint);
 
 /**
  * Initializes the internal state of the JIT compiler

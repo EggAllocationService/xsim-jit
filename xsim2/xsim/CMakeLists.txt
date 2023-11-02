@@ -8,4 +8,4 @@ target_link_libraries(xsimlib xlib)
 target_include_directories(xsimlib PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_executable(xsim2 main.c xcpu.c)
-target_link_libraries(xsim2 xlib xsimlib)
+target_link_libraries(xsim2 xlib xsimlib xjit)

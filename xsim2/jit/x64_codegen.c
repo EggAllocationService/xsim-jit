@@ -2,7 +2,7 @@
 #define REX(w, reg, rm) 0x40 | (w << 3) | ((reg & 8) >> 1) | (( rm & 8) >> 3);
 
 
-int x64_map_move_reg2reg(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2) {
+int x64_map_mov_reg2reg(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2) {
     dest[pos] = REX(1, reg1, reg2); // REX prefix for x86_64 registers
     dest[pos + 1] = 0x89; // MOV r16 -> r/m16
     dest[pos + 2] = 0b11000000 | ((reg1 & 7) << 3) | (reg2 & 7); // encode registers
@@ -53,11 +53,32 @@ extern int x64_map_movzx_indirect2reg(unsigned char *dest, int pos, unsigned cha
     return pos - initialpos;
 }
 
+extern int x64_map_mov_indirect2reg64(unsigned char *dest, int pos, unsigned char target, unsigned char source, unsigned int offset) {
+    dest[pos++] = REX(1, target, source); // REX prefix for x86_64 registers
+    dest[pos++] = 0x8B; // MOV, r/m64 -> r64
+    dest[pos++] = 0b10000000 | ((target & 7) << 3) | (source & 7); // MODRM with 16 bit immediate  offset
+    for (int i = 0; i < 4; i++) {
+        dest[pos++] = (offset >> (i * 8)) & 0xFF;
+    }
+    return 7;
+}
+
 extern int x64_map_mov_reg2indirect(unsigned char *dest, int pos, unsigned char source, unsigned char target, unsigned int offset) {
     int initialpos = pos;
     dest[pos++] = 0x66; // 16 bit operands 
     dest[pos++] = REX(0, source, target); // REX prefix for x86_64 registers
-    dest[pos++] = 0x89; // MOV r/m16 -> r16
+    dest[pos++] = 0x89; // MOV r16 -> r/m16
+    dest[pos++] = 0b10000000 | ((source & 7) << 3) | (target & 7); // MODRM with 16 bit immediate  offset
+    for (int i = 0; i < 4; i++) {
+        dest[pos++] = (offset >> (i * 8)) & 0xFF;
+    }
+    return pos - initialpos;
+}
+
+extern int x64_map_mov_reg2indirect64(unsigned char *dest, int pos, unsigned char source, unsigned char target, unsigned int offset) {
+    int initialpos = pos;
+    dest[pos++] = REX(1, source, target); // REX prefix for x86_64 registers
+    dest[pos++] = 0x89; // MOV r64 -> r/m64
     dest[pos++] = 0b10000000 | ((source & 7) << 3) | (target & 7); // MODRM with 16 bit immediate  offset
     for (int i = 0; i < 4; i++) {
         dest[pos++] = (offset >> (i * 8)) & 0xFF;

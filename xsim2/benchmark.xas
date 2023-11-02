@@ -1,0 +1,121 @@
+loadi Stack, r15
+
+
+loadi 500, r12 #counter
+l_start:
+  dec r12
+  loadi 0, r0
+  equ r0, r12 # if counter == 0
+  br l_end
+  push r12
+  loadi 0, r0
+  call main
+  pop r12
+  jr l_start
+l_end:
+  loadi 1, r0
+  call main
+.literal 0
+
+# calculate all fibbonaci numbers up to n=24
+main:
+  mov r0, r9 # should print
+  loadi 24, r13 # counter
+main_loop:
+ #calculate fib index
+  loadi 24, r0
+  mov r13, r1
+  sub r1, r0
+
+  push r13
+  push r9
+  call fib
+  pop r9
+  loadi 0, r1
+  equ r1, r9 # if first param == 0
+  br skip_print # skip printing the number
+  loadi 1, r1
+  call printnum
+skip_print:
+  pop r13
+  loadi 0, r5
+  equ r5, r13
+  br main_end # exit if counter == 0
+  dec r13
+  jr main_loop
+main_end:
+  ret
+.literal 0
+
+
+
+#printnum(num, newline) - prints a number in decimal representation
+printnum:
+  mov r1, r2
+  mov r0, r11
+  loadi 255, r0
+  push r0
+push_factor:
+  mov r11, r0
+  loadi 10, r1
+  call mod
+  push r0
+  div r1, r11
+  loadi 0, r0
+  equ r0, r11 # test if value == 0
+  br print_nums
+  jr push_factor
+print_nums:
+  loadi 48, r1
+  loadi 255, r8
+print_loop:
+  pop r0
+  equ r0, r8 # test if popped value is 255
+  br print_newline # if popped value is 255, stop printing
+  add r1, r0
+  out r0
+  jr print_loop
+print_newline:
+  loadi 0, r10
+  equ r2, r10 # if newline parameter is zero
+  br printnum_done
+  loadi 10, r0
+  out r0
+printnum_done:
+  ret
+
+mod:
+  mov r0, r10
+  div r1, r10
+  mul r1, r10
+  sub r10, r0
+  ret
+
+
+fib:
+  loadi 2, r12
+  cmp r0, r12 #if in < 2
+  br f_ret # return
+  push r0 # save n
+
+  # calc fib(n - 1)
+  dec r0
+  call fib
+
+  pop r1 # load n to r1
+  push r0 # save fib(n - 1)
+  mov r1, r0 # mov n into r0
+
+  #calc fib(n - 2
+  dec r0
+  dec r0
+  call fib # mov fib(n-2) into r0
+  pop r1 # load fib (n-1) into r1
+  add r1, r0
+  jr f_ret
+
+f_ret:
+  ret
+
+.words 4096
+Stack:
