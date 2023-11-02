@@ -1,10 +1,7 @@
 
-#define REX(w, reg, rm) dest[pos] = 0x40 | (w << 3) | ((reg & 8) >> 1) | (( rm & 8) >> 3);
+#define REX(w, reg, rm) 0x40 | (w << 3) | ((reg & 8) >> 1) | (( rm & 8) >> 3);
 
-/**
- * Encodes the x64 instruction for a 64 bit move from `reg1` to `reg2`
- * Returns the number of bytes written
-*/
+
 int x64_map_move_reg2reg(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2) {
     dest[pos] = REX(1, reg1, reg2); // REX prefix for x86_64 registers
     dest[pos + 1] = 0x89; // MOV r16 -> r/m16
@@ -82,6 +79,21 @@ extern int x64_map_mov_imm2indirect(unsigned char *dest, int pos, unsigned short
     return pos - initialpos;
 }
 
+extern int x64_map_mov_m8_2_r8(unsigned char *dest, int pos, unsigned short source, unsigned char target) {
+    // source is r/m, target is r
+    dest[pos] = 0x8A; // MOV r/m8 -> r8
+    dest[pos + 1] = 0b01000000 | ((target & 7) << 3) | (source & 7); // MODRM w/ 8 bit offset
+    dest[pos + 2] = 0x0; // no offset
+    return 3;
+}
+extern int x64_map_mov_r8_2_m8(unsigned char *dest, int pos, unsigned short source, unsigned char target) {
+    // source is r, target is r/m
+    dest[pos] = 0x8A; // MOV r/m8 -> r8
+    dest[pos + 1] = 0b01000000 | ((source & 7) << 3) | (target & 7); // MODRM w/ 8 bit offset
+    dest[pos + 2] = 0x0; // no offset
+    return 3;
+}
+
 extern int x64_map_call(unsigned char *dest, int pos, unsigned char reg) {
     int initalpos = pos;
     if (reg > 7) {
@@ -147,6 +159,19 @@ extern int x64_map_and_indirect(unsigned char *dest, int pos, unsigned char reg,
     INDIRECT_OP_OFFSET_FROMREG(0x21);
 }
 
+extern int x64_map_and_imm16(unsigned char *dest, int pos, unsigned char rm,  unsigned short imm) {
+    int start = pos;
+    dest[pos++] = 0x66;
+    if (rm > 7) {
+        dest[pos++] = REX(0, 0, rm);
+    }
+    dest[pos++] = 0x81; // AND imm16->r16
+    dest[pos++] = 0b11100000 | (rm & 7);
+    dest[pos++] = imm & 0xFF;
+    dest[pos++] = (imm >> 8)  & 0xFF;
+    return pos - start;
+}
+
 extern int x64_map_or_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset) {
     INDIRECT_OP_OFFSET_FROMREG(0x09);
 }
@@ -179,13 +204,65 @@ extern int x64_map_shl_indirect(unsigned char *dest, int pos, unsigned char rm, 
     return pos - initalpos;
 }
 
-extern int x64_map_bswap_r16(unsigned char *dest, int pos, unsigned char reg) {
-    int initialpos = pos;
-    dest[pos++] = 0x66; // 16 bit operands
-    if (reg > 7) {
+extern int x64_map_xchg_r8(unsigned char *dest, int pos, unsigned char reg, unsigned char rm) {
+    dest[pos] = 0x86;
+    dest[pos + 1] = 0b11000000 | ((reg & 7) << 3) | (rm & 7);
+    return 2;
+}
+
+extern int x64_map_absolute_jmp(unsigned char *dest, int pos, unsigned char reg) {
+    int initial_pos = pos;
+    if(reg > 7) {
         dest[pos++] = REX(0, 0, reg);
     }
-    dest[pos++] = 0x0F; // required prefix
-    dest[pos++] = 0xC8 | (reg & 7); // BSWAP r16
-    return pos - initialpos;
+    dest[pos++] = 0xFF;
+    dest[pos++] = 0b11100000 | (reg & 7); // ModRM, reg = 4
+
+    return pos - initial_pos;
+}
+
+extern int x64_map_neg_indirect(unsigned char *dest, int pos, unsigned char target, unsigned char offset) {
+    dest[pos++] = 0x66;
+    if (target > 7) {
+        dest[pos++] = REX(0, 0, target);
+    }
+    dest[pos++] = 0xF7;
+    dest[pos++] = 0b01011000 | (target & 7);
+    dest[pos++] = offset;
+    return target > 7 ? 5 : 4;
+}
+
+extern int x64_map_test(unsigned char *dest, int pos, unsigned char reg, unsigned char rm) {
+    dest[pos++] = 0x66;
+    if (reg > 7 || rm > 7) {
+        dest[pos++] = REX(0, reg, rm);
+    }
+    dest[pos++] = 0x85;
+    dest[pos++] = 0b11000000 | ((reg & 7) << 3) | (rm & 7);
+    return (reg > 7 || rm > 7) ? 4 : 3;
+}
+
+extern int x64_map_setz(unsigned char *dest, int pos, unsigned char rm) {
+    dest[pos] = 0x0F; // require prefix
+    dest[pos + 1] = 0x94; // SETZ rm/8
+    dest[pos + 2] = 0b11000000 | (rm & 7);
+    return 3;
+}
+
+extern int x64_map_inc_dec_indirect(unsigned char *dest, int pos, unsigned char mode, unsigned char rm, unsigned char offset) {
+    int initial_pos = pos;
+    dest[pos++] = 0x66; // 16 bit operands
+    if (rm > 7) {
+        dest[pos++] = REX(0, 0, rm);
+    }
+    dest[pos++] = 0xFF; // inc/dec opcode
+    dest[pos++] = 0b01000000 | (mode << 3) | (rm & 7);
+    dest[pos++] = offset;
+    return pos - initial_pos;
+}
+
+extern int x64_map_jz_rel8(unsigned char *dest, int pos, char offset) {
+    dest[pos] = 0x74;
+    dest[pos + 1] = offset;
+    return 2;
 }

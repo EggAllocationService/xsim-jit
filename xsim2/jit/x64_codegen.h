@@ -1,8 +1,5 @@
 #pragma once
-/**
- * Encodes the x64 instruction for a 16 bit move from `reg1` to `reg2`
-*/
-extern int x64_map_move_reg2reg(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2);
+
 
 /**
  * Encodes the x64 `ret` instruction
@@ -37,6 +34,18 @@ extern int x64_map_move_imm2reg(unsigned char *dest, int pos, unsigned char reg,
 */
 extern int x64_map_call(unsigned char *dest, int pos, unsigned char reg);
 
+/*
+ *************************************
+  Lots of MOV instruction variants
+ *************************************
+*/
+
+/**
+ * Encodes the x64 instruction for a 64 bit move from `reg1` to `reg2`
+ * Returns the number of bytes written
+*/
+extern int x64_map_move_reg2reg(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2);
+
 /**
  * Encodes an x64 MOVZX instruction with a indirect source with offset, and a register target.
  * 64 bit addressing, 16 bit operands
@@ -56,6 +65,18 @@ extern int x64_map_mov_reg2indirect(unsigned char *dest, int pos, unsigned char 
  * Encodes an x64 MOV instruction moving an immediate value to an indirect register with an 8 bit offset
 */
 extern int x64_map_mov_imm2indirect(unsigned char *dest, int pos, unsigned short value, unsigned char target, unsigned char offset);
+
+/**
+ * Encodes an x64 MOV instruction indirectly loading one byte from a register into an 8 bit register
+ * WARNING: This operation does not support extended registers for either operand! Bad things will happen!
+ */
+extern int x64_map_mov_m8_2_r8(unsigned char *dest, int pos, unsigned short source, unsigned char target);
+
+/**
+ * Encodes an x64 MOV instruction storing one byte from an 8 bit register indirectly into another register
+ * WARNING: This operation does not support extended registers for either operand! Bad things will happen!
+ */
+extern int x64_map_mov_r8_2_m8(unsigned char *dest, int pos, unsigned short source, unsigned char target);
 
 /*
   Integer operations
@@ -104,6 +125,13 @@ extern int x64_map_div_indirect(unsigned char *dest, int pos, unsigned char rm, 
 extern int x64_map_and_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset);
 
 /**
+ * Encodes the x64 `AND` instruction for 16 bit operands
+ * Returns the number of bytes written
+ * Operation performed is target &= IMM
+*/
+extern int x64_map_and_imm16(unsigned char *dest, int pos, unsigned char rm,  unsigned short imm);
+
+/**
  * Encodes the x64 `OR` instruction for 16 bit operands
  * Returns the number of bytes written
  * Operation performed is [target + offset] |= reg;
@@ -131,13 +159,59 @@ extern int x64_map_shr_indirect(unsigned char *dest, int pos, unsigned char targ
 */
 extern int x64_map_shl_indirect(unsigned char *dest, int pos, unsigned char target, unsigned char offset);
 
+/**
+ * Encodes the x64 `NEG` instruction for 16 bit operands
+ * Returns the number of bytes written
+ * Operation performed is [target + offset] = ~[target + offset];
+ */
+extern int x64_map_neg_indirect(unsigned char *dest, int pos, unsigned char target, unsigned char offset);
+
+/**
+ * Encodes the x64 `TEST` instruction for two 16 bit registers
+ * Returns the number of bytes written
+ */
+extern int x64_map_test(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
+
+/**
+ * Encodes the x64 `SETZ/E` instruction, setting `rm` to the value of the zero flag
+ * Do NOT encode this instruction with any of the new registers, BAD things will happen.
+ */
+extern int x64_map_setz(unsigned char *dest, int pos, unsigned char rm);
+
+
 /*
   Some utility instructions
 */
 
 /**
- * Encodes the x64 `BSWAP` instruction (16 bit word)
- * `reg` is the 16 bit register that will have it's bytes swapped
+ * Encodes the x64 `XCHG` instruction (8 bit word)
+ * `reg` is one of the 8-bit registers that will be swapped
+ * `rm` is the other 8-bit target register
 */
-extern int x64_map_bswap_r16(unsigned char *dest, int pos, unsigned char reg);
+extern int x64_map_xchg_r8(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
 
+
+/*
+ Control flow
+*/
+
+/**
+ * Encodes the x64 JMP instruction with a 64 bit register operand
+ * @param reg Register containing the address to jump to
+ * @return number of instructions written
+ */
+extern int x64_map_absolute_jmp(unsigned char *dest, int pos, unsigned char reg);
+
+
+#define MODE_DEC 1
+#define MODE_INC 0
+/**
+ * Encodes the x64 INC and DEC instructions, indirectly targeting a 16 bit value
+ * @return number of bytes written
+*/
+extern int x64_map_inc_dec_indirect(unsigned char *dest, int pos, unsigned char mode, unsigned char rm, unsigned char offset);
+
+/**
+* Encodes the x64 JZ/E instruction, with an 8 bit 2's compliment offset
+*/
+extern int x64_map_jz_rel8(unsigned char *dest, int pos, char offset);
