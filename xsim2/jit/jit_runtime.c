@@ -55,7 +55,7 @@ extern unsigned long compile_or_get_cached_addr(unsigned char *memory, unsigned 
         fclose(fp);
         free(filename);
 #endif
-       // printf("Wrote %d bytes to %s\n\n", target->generated_size, filename);
+       //printf("Wrote %d bytes to %s\n\n", target->generated_size, filename);
 
     }
 

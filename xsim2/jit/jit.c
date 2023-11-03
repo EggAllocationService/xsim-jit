@@ -194,8 +194,9 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                                                    VMEM_BASE_REG, RDI);
                     gen_ptr += x64_map_move_imm2reg(memory, gen_ptr,
                                                    RSI, extended_value);
-                    WRITE_FUNCTION_CALL(jump_dynamic);
+                    WRITE_FUNCTION_CALL(jump_dynamic)
                     gen_ptr += x64_map_absolute_jmp(memory, gen_ptr, RAX);
+                    break;
                 }
                 case I_CALL: {
                     // call_static will overwrite this region, so repeated calls are faster
@@ -217,8 +218,6 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                         printf("Assertion failed: check CALL_STATIC_OVERWRITE_SIZE! (%d)", overwritten_len);
                         exit(-4);
                     }
-
-
 
                     // sub 2 from virtual stack pointer ( r15
                     gen_ptr += x64_map_move_imm2reg(memory, gen_ptr,
@@ -611,6 +610,28 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                     memory[right_after_jz - 1] = amount_to_jump;
 
                     SUBMIT_LINK_REQUEST(target)
+                    break;
+                }
+                case I_JMPR: {
+                    LOAD_VREG_TO_REG(reg, RSI);
+                    gen_ptr += x64_map_mov_reg2reg(memory, gen_ptr,
+                                                   VMEM_BASE_REG, RDI);
+
+                    WRITE_FUNCTION_CALL(jump_dynamic)
+
+                    gen_ptr += x64_map_absolute_jmp(memory, gen_ptr,
+                                                    RAX);
+                    break;
+                }
+                case I_CALLR: {
+                    LOAD_VREG_TO_REG(reg, RSI);
+                    gen_ptr += x64_map_mov_reg2reg(memory, gen_ptr,
+                                                   VMEM_BASE_REG, RDI);
+
+                    WRITE_FUNCTION_CALL(call_dynamic)
+
+                    gen_ptr += x64_map_call(memory, gen_ptr, RAX);
+
                     break;
                 }
                 default: {
