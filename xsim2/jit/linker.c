@@ -61,8 +61,9 @@ extern void jit_link(linked_list_t *requests, instr_results_t *results, unsigned
             case LINK_JUMP_REL: {
                 // MOV <linked address>, RAX
                 // JMP RAX
-                gen_ptr += x64_map_move_imm2reg(memory, gen_ptr, FUNC_ADDR_REG, target_address);
-                x64_map_absolute_jmp(memory, gen_ptr, FUNC_ADDR_REG);
+                unsigned long current_address = ((unsigned long) memory) + gen_ptr;
+                long jump_offset = ((long) target_address) - ((long)current_address);
+                gen_ptr += x64_map_jmp_rel32(memory, gen_ptr, ((int) jump_offset) - 5);
                 break;
             }
             case LINK_BRANCH_REL: {
