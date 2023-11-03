@@ -11,17 +11,17 @@
 /**
  * Sets the lowest bit of the cpu flags to (src & dest) == 0
 */
-extern void calc_flags_test(unsigned short src, unsigned short dest, xcpu *c);
+extern void calc_flags_test(xcpu *c, unsigned short src, unsigned short dest);
 
 /**
  * Sets the lowest bit of the cpu flags to src < dest
 */
-extern void calc_flags_cmp(unsigned short src, unsigned short dest, xcpu *c);
+extern void calc_flags_cmp(xcpu *c, unsigned short src, unsigned short dest);
 
 /**
  * Sets the lowest bit of the cpu flags to src == dest
 */
-extern void calc_flags_equ(unsigned short src, unsigned short dest, xcpu *c);
+extern void calc_flags_equ(xcpu *c, unsigned short src, unsigned short dest);
 
 /**
  * Prepares and jumps to a target virtual address

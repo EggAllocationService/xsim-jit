@@ -17,13 +17,13 @@
 #define BH 5
 
 // register used for the address of function calls
-#define FUNC_ADDR_REG 10
+#define FUNC_ADDR_REG RAX
 
 // registers that don't do anything funky with indirect addressing
-#define SCRATCH_REG 14
-#define SCRATCH_REG_2 11
-#define CPU_STATE_REG 15
-#define VMEM_BASE_REG 13
+#define SCRATCH_REG RCX
+#define SCRATCH_REG_2 RBX
+#define CPU_STATE_REG RDI
+#define VMEM_BASE_REG RSI
 
 #define PC_INDEX 16
 #define FLAGS_INDEX 17

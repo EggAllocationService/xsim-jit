@@ -116,11 +116,25 @@ extern int x64_map_add_reg2reg(unsigned char *dest, int pos, unsigned char rm, u
 extern int x64_map_sub_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset);
 
 /**
+ * Encodes the x64 `SUB` instruction for two 16 bit register operands
+ * Returns the number of bytes written
+ * Operation performed is rm = rm - reg
+*/
+extern int x64_map_sub_reg2reg16(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
+
+/**
  * Encodes the x64 `MUL` instruction for 16 bit operands
  * Returns the number of bytes written
  * Operation performed is ax *= [rm + offset];
 */
 extern int x64_map_mul_indirect(unsigned char *dest, int pos, unsigned char rm, unsigned char offset);
+
+/**
+ * Encodes the x64 `MUL` instruction for two 16 bit registers
+ * Returns the number of bytes written
+ * Operation performed is ax *= rm;
+*/
+extern int x64_map_mul_reg2ax16(unsigned char *dest, int pos, unsigned char rm);
 
 /**
  * Encodes the x64 `DIV` instruction for 16 bit operands
@@ -130,11 +144,18 @@ extern int x64_map_mul_indirect(unsigned char *dest, int pos, unsigned char rm, 
 extern int x64_map_div_indirect(unsigned char *dest, int pos, unsigned char rm, unsigned char offset);
 
 /**
+ * Encodse the x65 DIV instruction for 16 bit operands
+ * returns the number of bytes written
+ * Operation performed is ax /= rm
+*/
+extern int x64_map_div_reg2ax16(unsigned char *dest, int pos, unsigned char rm);
+
+/**
  * Encodes the x64 `AND` instruction for 16 bit operands
  * Returns the number of bytes written
  * Operation performed is [target + offset] &= reg;
 */
-extern int x64_map_and_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset);
+extern int x64_map_and_reg2reg16(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
 
 /**
  * Encodes the x64 `AND` instruction for 16 bit operands
@@ -146,9 +167,16 @@ extern int x64_map_and_imm16(unsigned char *dest, int pos, unsigned char rm,  un
 /**
  * Encodes the x64 `OR` instruction for 16 bit operands
  * Returns the number of bytes written
- * Operation performed is [target + offset] |= reg;
+ * Operation performed is rm |= reg;
 */
-extern int x64_map_or_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset);
+extern int x64_map_or_reg2reg16(unsigned char *dest, int pos, unsigned char reg, unsigned char rm) ;
+
+/**
+ * Encodes the x64 `OR` instruction for 16 bit operands
+ * Returns the number of bytes written
+ * Operation performed is target |= IMM
+*/
+extern int x64_map_or_imm16(unsigned char *dest, int pos, unsigned char rm,  unsigned short imm);
 
 /**
  * Encodes the x64 `XOR` instruction for 16 bit operands
@@ -158,18 +186,25 @@ extern int x64_map_or_indirect(unsigned char *dest, int pos, unsigned char reg, 
 extern int x64_map_xor_indirect(unsigned char *dest, int pos, unsigned char reg, unsigned char target, unsigned char offset);
 
 /**
+ * Encodes the x64 `XOR` instruction for two 64 bit register operands
+ * Returns the number of bytes written
+ * Operation performed is rm = rm ^ reg
+*/
+extern int x64_map_xor_reg2reg64(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
+
+/**
  * Encodes the x64 `SHR` instruction for 16 bit operands
  * Returns the number of bytes written
- * Operation performed is [target + offset] >> %cx;
+ * Operation performed is rm = rm >> %cx;
 */
-extern int x64_map_shr_indirect(unsigned char *dest, int pos, unsigned char target, unsigned char offset);
+extern int x64_map_shr_reg2reg16(unsigned char *dest, int pos, unsigned char rm);
 
 /**
  * Encodes the x64 `SHL` instruction for 16 bit operands
  * Returns the number of bytes written
- * Operation performed is [target + offset] << %cx;
+ * Operation performed is rm = rm << %cx
 */
-extern int x64_map_shl_indirect(unsigned char *dest, int pos, unsigned char target, unsigned char offset);
+extern int x64_map_shl_reg2reg16(unsigned char *dest, int pos, unsigned char rm);
 
 /**
  * Encodes the x64 `NEG` instruction for 16 bit operands
@@ -177,19 +212,6 @@ extern int x64_map_shl_indirect(unsigned char *dest, int pos, unsigned char targ
  * Operation performed is [target + offset] = ~[target + offset];
  */
 extern int x64_map_neg_indirect(unsigned char *dest, int pos, unsigned char target, unsigned char offset);
-
-/**
- * Encodes the x64 `TEST` instruction for two 16 bit registers
- * Returns the number of bytes written
- */
-extern int x64_map_test(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
-
-/**
- * Encodes the x64 `SETZ/E` instruction, setting `rm` to the value of the zero flag
- * Do NOT encode this instruction with any of the new registers, BAD things will happen.
- */
-extern int x64_map_setz(unsigned char *dest, int pos, unsigned char rm);
-
 
 /*
   Some utility instructions
@@ -232,3 +254,36 @@ extern int x64_map_jz_rel8(unsigned char *dest, int pos, char offset);
 * Encodes the x64 JMP instruction, with an 32 bit 2's compliment offset
 */
 extern int x64_map_jmp_rel32(unsigned char *dest, int pos, int offset);
+
+/**
+ * Contitional statements
+*/
+/*
+  Encodes the x64 CMP instruction, setting B if rm < reg
+  Returns the number of bytes written
+*/
+extern int x64_map_cmp_reg2reg16(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
+
+/**
+ * Encodes the x64 `SETZ/E` instruction, setting `rm` to the value of the zero flag
+ * Do NOT encode this instruction with any of the new registers, BAD things will happen.
+ */
+extern int x64_map_setz(unsigned char *dest, int pos, unsigned char rm);
+
+/**
+ * Encodes the x64 `SETB/NAE/C` instruction, setting `rm` to the value of the below flag
+ * Do NOT encode this instruction with any of the new registers, BAD things will happen.
+ */
+extern int x64_map_setb(unsigned char *dest, int pos, unsigned char rm);
+
+/**
+ * Encodes the x64 `SETNE` instruction, setting `rm` to the value of the below flag
+ * Do NOT encode this instruction with any of the new registers, BAD things will happen.
+ */
+extern int x64_map_setne(unsigned char *dest, int pos, unsigned char rm);
+
+/**
+ * Encodes the x64 TEST instruction, with two 16 bit operands
+ * Returns the number of bytes written
+*/
+extern int x64_map_test_reg2reg16(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);

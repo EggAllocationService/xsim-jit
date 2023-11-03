@@ -62,4 +62,9 @@ extern jit_state *jit_get_state();
 */
 extern void jit_set_debug_function(jit_debug_func func);
 
+/**
+ * Utility function
+*/
+extern unsigned short load_short(unsigned char *mem, size_t offset);
+
 #endif
