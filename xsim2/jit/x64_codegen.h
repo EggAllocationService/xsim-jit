@@ -227,3 +227,8 @@ extern int x64_map_inc_dec_indirect(unsigned char *dest, int pos, unsigned char 
 * Encodes the x64 JZ/E instruction, with an 8 bit 2's compliment offset
 */
 extern int x64_map_jz_rel8(unsigned char *dest, int pos, char offset);
+
+/**
+* Encodes the x64 JMP instruction, with an 32 bit 2's compliment offset
+*/
+extern int x64_map_jmp_rel32(unsigned char *dest, int pos, int offset);

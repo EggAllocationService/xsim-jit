@@ -4,6 +4,7 @@
 
 #include <malloc.h>
 #include <string.h>
+#include <stdlib.h>
 #include "linker.h"
 #include "x64_codegen.h"
 #include "registers.h"
@@ -79,9 +80,12 @@ extern void jit_link(linked_list_t *requests, instr_results_t *results, unsigned
                 // store new pc
                 gen_ptr += x64_map_mov_imm2indirect(memory, gen_ptr,
                                                     req->target_pc, CPU_STATE_REG, PC_INDEX * 2);
-                gen_ptr += x64_map_move_imm2reg(memory, gen_ptr,
-                                                FUNC_ADDR_REG, target_address);
-                gen_ptr += x64_map_absolute_jmp(memory, gen_ptr, FUNC_ADDR_REG);
+
+                unsigned long current_address = ((unsigned long) memory) + gen_ptr;
+
+                long jump_offset = ((long) target_address) - ((long)current_address);
+
+                gen_ptr += x64_map_jmp_rel32(memory, gen_ptr, (int) jump_offset);
 
                 char amount_to_jump = (char) (gen_ptr - right_after_jz) ;
                 memory[right_after_jz - 1] = amount_to_jump;
