@@ -291,7 +291,7 @@ extern int x64_map_jz_rel8(unsigned char *dest, int pos, char offset) {
 extern int x64_map_jmp_rel32(unsigned char *dest, int pos, int offset) {
     dest[pos] = 0xE9;
     for (int i = 0; i < 4; i++) {
-        dest[pos + 2 + i] = (offset >> (i * 8)) & 0xFF;
+        dest[pos + 1 + i] = (offset >> (i * 8)) & 0xFF;
     }
 
     return 5;
