@@ -43,9 +43,10 @@ extern jit_state *jit_get_state() {
  * If `physreg` is not one of the mapped virtual registers, then this macro will store
  * the 16-bit value contained in physreg to vreg
 */
-#define STORE_IF_NEEDED(physreg, vreg) if (physreg < 8) {  \ 
-                            gen_ptr += x64_map_mov_reg2indirect(memory, gen_ptr, \
-                                        physreg, CPU_STATE_REG, (2 * vreg));}
+#define STORE_IF_NEEDED(physreg, vreg) if (physreg < 8) {STORE_ALWAYS(physreg, vreg)}
+
+#define STORE_ALWAYS(physreg, vreg) gen_ptr += x64_map_mov_reg2indirect(memory, gen_ptr, \
+                                                            physreg, CPU_STATE_REG, (2 * vreg));
 
 #define PUSH_VALUE_TO_STACK(physreg)
 
@@ -277,7 +278,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                     gen_ptr += x64_map_mov_8_16_reg2scaled(memory, gen_ptr,
                                                            SCRATCH_REG_2, VMEM_BASE_REG, sp, MOV_SCALE_16);
                     // write new stack pointer
-                    STORE_IF_NEEDED(sp, 15);
+                    STORE_ALWAYS(sp, 15)
 
                     int start = gen_ptr;
                     unsigned long call_start = ((unsigned long)memory) + gen_ptr;
@@ -633,7 +634,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
 
                     // restore execution state
                     gen_ptr += load_virtual_registers(memory, gen_ptr, table, 1);
-                    gen_ptr += x64_map_move_imm2reg(memory, gen_ptr, VMEM_BASE_REG, ((unsigned long) memory));
+                    gen_ptr += x64_map_move_imm2reg(memory, gen_ptr, VMEM_BASE_REG, ((unsigned long) program));
                     break;
                 }
                 case I_JR: {
@@ -656,7 +657,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                     // restore execution state
                     gen_ptr += x64_map_pop(memory, gen_ptr, CPU_STATE_REG);
                     gen_ptr += load_virtual_registers(memory, gen_ptr, table, 1);
-                    gen_ptr += x64_map_move_imm2reg(memory, gen_ptr, VMEM_BASE_REG, ((unsigned long) memory));
+                    gen_ptr += x64_map_move_imm2reg(memory, gen_ptr, VMEM_BASE_REG, ((unsigned long) program));
 
                     gen_ptr += x64_map_absolute_jmp(memory, gen_ptr, RAX);
 
@@ -697,7 +698,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
 
                     // pop execution state
                     gen_ptr += load_virtual_registers(memory, gen_ptr, table, 1);
-                    gen_ptr += x64_map_move_imm2reg(memory, gen_ptr, VMEM_BASE_REG, ((unsigned long) memory));
+                    gen_ptr += x64_map_move_imm2reg(memory, gen_ptr, VMEM_BASE_REG, ((unsigned long) program));
 
                     // jump to address
                     gen_ptr += x64_map_absolute_jmp(memory, gen_ptr, RAX);
