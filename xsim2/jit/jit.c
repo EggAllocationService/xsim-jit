@@ -425,7 +425,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                                                         RAX, RAX);
                         // calc src < dest
                         gen_ptr += x64_map_cmp_reg2reg16(memory, gen_ptr,
-                                                        dest, src);
+                                                        src, dest);
                         // move below bit to AL
                         gen_ptr += x64_map_setb(memory, gen_ptr, AL);
 
