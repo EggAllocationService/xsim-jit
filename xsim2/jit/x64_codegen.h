@@ -184,12 +184,6 @@ extern int x64_map_neg_indirect(unsigned char *dest, int pos, unsigned char targ
  */
 extern int x64_map_test(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
 
-/**
- * Encodes the x64 `SETZ/E` instruction, setting `rm` to the value of the zero flag
- * Do NOT encode this instruction with any of the new registers, BAD things will happen.
- */
-extern int x64_map_setz(unsigned char *dest, int pos, unsigned char rm);
-
 
 /*
   Some utility instructions
@@ -232,3 +226,42 @@ extern int x64_map_jz_rel8(unsigned char *dest, int pos, char offset);
 * Encodes the x64 JMP instruction, with an 32 bit 2's compliment offset
 */
 extern int x64_map_jmp_rel32(unsigned char *dest, int pos, int offset);
+
+/**
+ * Contitional statements
+*/
+/*
+  Encodes the x64 CMP instruction, setting B if rm < reg
+  Returns the number of bytes written
+*/
+extern int x64_map_cmp_reg2reg16(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
+
+/**
+ * Encodes the x64 `SETZ/E` instruction, setting `rm` to the value of the zero flag
+ * Do NOT encode this instruction with any of the new registers, BAD things will happen.
+ */
+extern int x64_map_setz(unsigned char *dest, int pos, unsigned char rm);
+
+/**
+ * Encodes the x64 `SETB/NAE/C` instruction, setting `rm` to the value of the below flag
+ * Do NOT encode this instruction with any of the new registers, BAD things will happen.
+ */
+extern int x64_map_setb(unsigned char *dest, int pos, unsigned char rm);
+
+/**
+ * Encodes the x64 `SETNE` instruction, setting `rm` to the value of the below flag
+ * Do NOT encode this instruction with any of the new registers, BAD things will happen.
+ */
+extern int x64_map_setne(unsigned char *dest, int pos, unsigned char rm);
+
+/**
+ * Encodes the x64 TEST instruction, with two 16 bit operands
+ * Returns the number of bytes written
+*/
+extern int x64_map_test_reg2reg16(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
+
+/**
+ * Encodes the x64 XOR instruction for two 64 bit register operands
+ * Returns the number of bytes written
+ */
+extern int x64_map_xor_reg2reg64(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);

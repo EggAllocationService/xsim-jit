@@ -319,17 +319,25 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                         break;
                     }
                     case I_CMP: {
-                        // work delegated to a runtime function because i don't care enough
                         
                         // load arguments
                         LOAD_VREG_TO_REG(src, RDI);
                         LOAD_VREG_TO_REG(dest, RSI);
 
-                        // load cpu state pointer
-                        gen_ptr += x64_map_mov_reg2reg(memory, gen_ptr,
-                                                       CPU_STATE_REG, RDX);
 
-                        WRITE_FUNCTION_CALL(calc_flags_cmp);
+                        // clear RAX
+                        gen_ptr += x64_map_xor_reg2reg64(memory, gen_ptr,
+                                                         RAX, RAX);
+                        gen_ptr += x64_map_cmp_reg2reg16(memory, gen_ptr,
+                                                         RDI, RSI);
+                        // move below bit to AL
+                        gen_ptr += x64_map_setb(memory, gen_ptr, AL);
+
+                        // store new result
+                        gen_ptr += x64_map_mov_reg2indirect(memory, gen_ptr,
+                                                            RAX, CPU_STATE_REG, 2 * FLAGS_INDEX);
+
+
                         break;
                     }
                     case I_EQU: {
@@ -337,11 +345,18 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                         LOAD_VREG_TO_REG(src, RDI);
                         LOAD_VREG_TO_REG(dest, RSI);
 
-                        // load cpu state pointer
-                        gen_ptr += x64_map_mov_reg2reg(memory, gen_ptr,
-                                                       CPU_STATE_REG, RDX);
+                        gen_ptr += x64_map_xor_reg2reg64(memory, gen_ptr,
+                                                         RAX, RAX);
+                        // calc src == dest
+                        gen_ptr += x64_map_cmp_reg2reg16(memory, gen_ptr,
+                                                         RDI, RSI);
+                        // move zero bit to AL
+                        gen_ptr += x64_map_setz(memory, gen_ptr, AL);
 
-                        WRITE_FUNCTION_CALL(calc_flags_equ);
+                        // store new result
+                        gen_ptr += x64_map_mov_reg2indirect(memory, gen_ptr,
+                                                            RAX, CPU_STATE_REG, 2 * FLAGS_INDEX);
+
                         break;
                     }
                     case I_TEST: {
@@ -349,11 +364,20 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                         LOAD_VREG_TO_REG(src, RDI);
                         LOAD_VREG_TO_REG(dest, RSI);
 
-                        // load cpu state pointer
-                        gen_ptr += x64_map_mov_reg2reg(memory, gen_ptr,
-                                                       CPU_STATE_REG, RDX);
+                        // clear RAX
+                        gen_ptr += x64_map_xor_reg2reg64(memory, gen_ptr,
+                                                         RAX, RAX);
+                        // calc (src & dest) != 0
+                        gen_ptr += x64_map_test_reg2reg16(memory, gen_ptr,
+                                                          RDI, RSI);
 
-                        WRITE_FUNCTION_CALL(calc_flags_test);
+                        // move NE to AL
+                        gen_ptr += x64_map_setne(memory, gen_ptr, AL);
+
+                        // store new result
+                        gen_ptr += x64_map_mov_reg2indirect(memory, gen_ptr,
+                                                            RAX, CPU_STATE_REG, 2 * FLAGS_INDEX);
+
                         break;
                     }
                     case I_MOV: {

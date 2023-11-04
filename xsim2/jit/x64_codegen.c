@@ -1,5 +1,8 @@
 
-#define REX(w, reg, rm) 0x40 | (w << 3) | ((reg & 8) >> 1) | (( rm & 8) >> 3);
+#define REXI(w, reg, index, rm) (0x40 | (w << 3) | ((reg & 8) >> 1) | ((index & 8) >> 2) | (( rm & 8) >> 3))
+#define REX(w, reg, rm) REXI(w, reg, 0, rm)
+#define MODRM(mode, reg, rm) ((mode << 6) | ((reg & 7) << 3) | (rm & 7))
+
 
 
 int x64_map_mov_reg2reg(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2) {
@@ -118,7 +121,7 @@ extern int x64_map_mov_r8_2_m8(unsigned char *dest, int pos, unsigned short sour
 extern int x64_map_call(unsigned char *dest, int pos, unsigned char reg) {
     int initalpos = pos;
     if (reg > 7) {
-        dest[pos++] = REX(0, 0, reg) // REX prefix for x86_64 registers
+        dest[pos++] = REX(0, 0, reg); // REX prefix for x86_64 registers
     }
     dest[pos++] = 0xFF;
     dest[pos++] = 0xD0 | (reg & 7); // CALL r64
@@ -263,12 +266,6 @@ extern int x64_map_test(unsigned char *dest, int pos, unsigned char reg, unsigne
     return (reg > 7 || rm > 7) ? 4 : 3;
 }
 
-extern int x64_map_setz(unsigned char *dest, int pos, unsigned char rm) {
-    dest[pos] = 0x0F; // require prefix
-    dest[pos + 1] = 0x94; // SETZ rm/8
-    dest[pos + 2] = 0b11000000 | (rm & 7);
-    return 3;
-}
 
 extern int x64_map_inc_dec_indirect(unsigned char *dest, int pos, unsigned char mode, unsigned char rm, unsigned char offset) {
     int initial_pos = pos;
@@ -295,4 +292,53 @@ extern int x64_map_jmp_rel32(unsigned char *dest, int pos, int offset) {
     }
 
     return 5;
+}
+
+
+/**
+ * Stuff for conditionals
+*/
+
+#define REG2REG_OP_16(opcode)     int initalpos = pos;\
+    dest[pos++] = 0x66; \
+    if (rm > 7 || reg > 7) { \
+        dest[pos++] = REX(0, reg, rm); \
+    } \
+    dest[pos++] = opcode;  \
+    dest[pos++] = MODRM(0b11, reg, rm); \
+    return pos - initalpos;
+
+
+
+extern int x64_map_xor_reg2reg64(unsigned char *dest, int pos, unsigned char reg, unsigned char rm) {
+    REG2REG_OP_16(0x31)
+}
+
+extern int x64_map_cmp_reg2reg16(unsigned char *dest, int pos, unsigned char reg, unsigned char rm) {
+    REG2REG_OP_16(0x3B)
+}
+
+extern int x64_map_test_reg2reg16(unsigned char *dest, int pos, unsigned char reg, unsigned char rm) {
+    REG2REG_OP_16(0x85)
+}
+
+extern int x64_map_setz(unsigned char *dest, int pos, unsigned char rm) {
+    dest[pos] = 0x0F; // required prefix
+    dest[pos + 1] = 0x94; // SETZ rm/8
+    dest[pos + 2] = 0b11000000 | (rm & 7);
+    return 3;
+}
+
+extern int x64_map_setb(unsigned char *dest, int pos, unsigned char rm) {
+    dest[pos] = 0x0F; // required prefix
+    dest[pos + 1] = 0x92; // SETB rm/8
+    dest[pos + 2] = 0b11000000 | (rm & 7);
+    return 3;
+}
+
+extern int x64_map_setne(unsigned char *dest, int pos, unsigned char rm) {
+    dest[pos] = 0x0F; // required prefix
+    dest[pos + 1] = 0x98; // SETNE rm/8
+    dest[pos + 2] = 0b11000000 | (rm & 7);
+    return 3;
 }
