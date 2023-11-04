@@ -65,6 +65,6 @@ extern void jit_set_debug_function(jit_debug_func func);
 /**
  * Utility function
 */
-extern unsigned short load_short(unsigned char *mem, size_t offset);
+extern unsigned short load_short(unsigned char *mem, int offset);
 
 #endif

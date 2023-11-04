@@ -1,6 +1,8 @@
 
-#define REX(w, reg, rm) 0x40 | (w << 3) | ((reg & 8) >> 1) | (( rm & 8) >> 3)
-#define MODRM(mode, reg, rm) (mode << 6) | ((reg & 7) << 3) | (rm & 7)
+#define REXI(w, reg, index, rm) (0x40 | (w << 3) | ((reg & 8) >> 1) | ((index & 8) >> 2) | (( rm & 8) >> 3))
+#define REX(w, reg, rm) REXI(w, reg, 0, rm)
+#define MODRM(mode, reg, rm) ((mode << 6) | ((reg & 7) << 3) | (rm & 7))
+#define SIB(scale, index, base) ((scale << 6) | ((index & 7) << 3) | (base & 7))
 
 
 int x64_map_mov_reg2reg(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2) {
@@ -292,15 +294,14 @@ extern int x64_map_absolute_jmp(unsigned char *dest, int pos, unsigned char reg)
     return pos - initial_pos;
 }
 
-extern int x64_map_neg_indirect(unsigned char *dest, int pos, unsigned char target, unsigned char offset) {
+extern int x64_map_neg_reg16(unsigned char *dest, int pos, unsigned char target) {
     dest[pos++] = 0x66;
     if (target > 7) {
         dest[pos++] = REX(0, 0, target);
     }
     dest[pos++] = 0xF7;
-    dest[pos++] = 0b01011000 | (target & 7);
-    dest[pos++] = offset;
-    return target > 7 ? 5 : 4;
+    dest[pos++] = 0b11011000 | (target & 7);
+    return target > 7 ? 4 : 3;
 }
 
 
@@ -362,4 +363,57 @@ extern int x64_map_setne(unsigned char *dest, int pos, unsigned char rm) {
     dest[pos + 1] = 0x98; // SETNE rm/8
     dest[pos + 2] = 0b11000000 | (rm & 7);
     return 3;
+}
+
+extern int x64_map_mov_8_16_scaled2reg(unsigned char *dest, int pos, unsigned char reg,
+                                       unsigned char base, unsigned char index, char mode) {
+    int startpos = pos;
+    if (mode == 1) { // 16 bit load
+        dest[pos++] = 0x66; // 16 bit operation
+    }
+    dest[pos++] = REXI(0, reg, index, base);
+    dest[pos++] = 0x0F; // required prefix
+    dest[pos++] = mode == 1 ? 0xB7 : 0xB6; // 0x8B = movzx r/m16->r16, 0x8A = movzx r/m8->r16
+    dest[pos++] = MODRM(0b01, reg, 4); // use SIB addressing w/ 8 bit offset
+    dest[pos++] = SIB(0b00, index, base); // scale of 1 byte
+    dest[pos++] = 0x0; // offset
+    return pos - startpos;
+}
+
+
+extern int x64_map_mov_8_16_reg2scaled(unsigned char *dest, int pos, unsigned char reg,
+                                       unsigned char base, unsigned char index, char mode) {
+    int startpos = pos;
+    if (mode == 1) { // 16 bit load
+        dest[pos++] = 0x66; // 16 bit operation
+    }
+    dest[pos++] = REXI(0, reg, index, base);
+    dest[pos++] = mode == 1 ? 0x89 : 0x88; // 0x89 = mov r16->r/m16, 0x88 = mov r8->r/m8
+    dest[pos++] = MODRM(0b01, reg, 4); // use SIB addressing w/ 8 bit offset
+    dest[pos++] = SIB(0b00, index, base); // scale of 1 byte
+    dest[pos++] = 0x0; // offset
+    return pos - startpos;
+}
+
+extern int x64_map_ror_rm16_imm8(unsigned char *dest, int pos, unsigned char rm, char amount) {
+    int startpos = pos;
+    dest[pos++] = 0x66;
+    if (rm > 7) {
+        dest[pos++] = REX(0, 0, rm);
+    }
+    dest[pos++] = 0xC1; // ROR r/m16, imm8
+    dest[pos++] = MODRM(0b11, 1, rm);
+    dest[pos++] = amount;
+    return pos - startpos;
+}
+
+extern int x64_map_inc_dec_reg16(unsigned char *dest, int pos, unsigned char mode, unsigned char rm) {
+    int initial_pos = pos;
+    dest[pos++] = 0x66; // 16 bit operands
+    if (rm > 7) {
+        dest[pos++] = REX(0, 0, rm);
+    }
+    dest[pos++] = 0xFF; // inc/dec opcode
+    dest[pos++] = 0b11000000 | (mode << 3) | (rm & 7);
+    return pos - initial_pos;
 }

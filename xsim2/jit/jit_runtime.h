@@ -6,7 +6,7 @@
     It's worse for performance, but frankly I don't care because I'm not going to implement another eight variants of MOV
 */
 
-#define CALL_STATIC_OVERWRITE_SIZE 36
+#define CALL_STATIC_OVERWRITE_SIZE 35
 
 /**
  * Sets the lowest bit of the cpu flags to (src & dest) == 0

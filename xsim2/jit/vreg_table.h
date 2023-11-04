@@ -7,7 +7,7 @@ typedef struct vreg_table {
      * 
      * A value of -1 means that physical register is unused
     */
-    char mapped[8];
+    char mapped[7];
 
     /**
      * Bitfield storing which registers have been mapped

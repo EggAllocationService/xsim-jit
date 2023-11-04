@@ -209,9 +209,9 @@ extern int x64_map_shl_reg2reg16(unsigned char *dest, int pos, unsigned char rm)
 /**
  * Encodes the x64 `NEG` instruction for 16 bit operands
  * Returns the number of bytes written
- * Operation performed is [target + offset] = ~[target + offset];
+ * Operation performed is target = ~target;
  */
-extern int x64_map_neg_indirect(unsigned char *dest, int pos, unsigned char target, unsigned char offset);
+extern int x64_map_neg_reg16(unsigned char *dest, int pos, unsigned char target);
 
 /*
   Some utility instructions
@@ -287,3 +287,38 @@ extern int x64_map_setne(unsigned char *dest, int pos, unsigned char rm);
  * Returns the number of bytes written
 */
 extern int x64_map_test_reg2reg16(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
+
+/**
+* Load/Store instructions
+*/
+
+#define MOV_SCALE_8 0
+#define MOV_SCALE_16 1
+/**
+ * Load 16 bit word from scaled address into register
+ * Operation performed is reg = [base + index]
+ * @param mode should be one of `MOV_SCALE_8` or `MOV_SCALE_16`
+ * @return number of bytes written
+ */
+extern int x64_map_mov_8_16_scaled2reg(unsigned char *dest, int pos, unsigned char reg,
+                                       unsigned char base, unsigned char index, char mode);
+
+/**
+ * Store 16 bit word to scaled address from register
+ * Operation performed is [base + index] = reg
+ * @param mode should be one of `MOV_SCALE_8` or `MOV_SCALE_16`
+ * @return number of bytes written
+ */
+extern int x64_map_mov_8_16_reg2scaled(unsigned char *dest, int pos, unsigned char reg,
+                                       unsigned char base, unsigned char index, char mode);
+
+/**
+ * Rotates the bits in `rm` to the left by `amount`
+ * Returns the number of bytes written
+ */
+extern int x64_map_ror_rm16_imm8(unsigned char *dest, int pos, unsigned char rm, char amount);
+
+/**
+* Increments or decrements `rm`
+*/
+extern int x64_map_inc_dec_reg16(unsigned char *dest, int pos, unsigned char mode, unsigned char rm);

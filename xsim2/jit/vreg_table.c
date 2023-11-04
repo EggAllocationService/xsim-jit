@@ -5,7 +5,8 @@
 #include "xis.h"
 
 static int insert_reg(vreg_table *table, char reg) {
-    for (int i = 0; i < 8; i++) {
+    for (int i = 0; i < 7; i++) {
+        if(table->mapped[i] == reg) return 1;
         if (table->mapped[i] == -1) {
             table->mapped[i] = reg;
             return 1;
@@ -21,12 +22,13 @@ static int insert_reg(vreg_table *table, char reg) {
 extern vreg_table *solve_instruction_region(unsigned char *program, unsigned short address) {
     vreg_table *result = malloc(sizeof(vreg_table));
     memset(result, -1, sizeof(vreg_table));
+    result->mapped_regs = 0x0;
 
     int pc = 0;
-    int mapped_count = 0;
+
 
     while (1) {
-        unsigned short instruction = load_short(program, pc);
+        unsigned short instruction = load_short(program, pc + address);
         unsigned char opcode = (instruction >> 8);
         pc += 2;
 
@@ -60,7 +62,11 @@ extern vreg_table *solve_instruction_region(unsigned char *program, unsigned sho
         }
 
     }
-    
+    for (int i = 0; i < 7; i++) {
+        if (result->mapped[i] != -1) {
+            result->mapped_regs |= (1 << result->mapped[i]);
+        }
+    }
 
     return result;
 }
