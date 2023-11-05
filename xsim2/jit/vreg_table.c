@@ -5,7 +5,7 @@
 #include "xis.h"
 
 static int insert_reg(vreg_table *table, char reg) {
-    for (int i = 0; i < 7; i++) {
+    for (int i = 7; i >= 0; i--) {
         if(table->mapped[i] == reg) return 1;
         if (table->mapped[i] == -1) {
             table->mapped[i] = reg;
@@ -41,6 +41,10 @@ extern vreg_table *solve_instruction_region(unsigned char *program, unsigned sho
                     char reg1 = XIS_REG1(instruction);
 
                     TRY_INSERT_REG(reg1)
+
+                    if (opcode == I_PUSH || opcode == I_POP) {
+                        TRY_INSERT_REG(15)
+                    }
                 }
                 break;
             }
@@ -50,6 +54,7 @@ extern vreg_table *solve_instruction_region(unsigned char *program, unsigned sho
 
                 TRY_INSERT_REG(reg1)
                 TRY_INSERT_REG(reg2)
+                break;
             }
             case 3: { // extended
                 pc += 2;
@@ -58,6 +63,7 @@ extern vreg_table *solve_instruction_region(unsigned char *program, unsigned sho
 
                     TRY_INSERT_REG(reg1)
                 }
+                break;
             }
         }
 
