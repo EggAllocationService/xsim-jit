@@ -15,15 +15,14 @@ static int insert_reg(vreg_table *table, char reg) {
     return 0;
 }
 
-#define TRY_INSERT_REG(reg) if (!insert_reg(result, reg)) { \
-                        return result;\ 
-                    }
+#define ADD_COUNT(reg) counts[reg]++;
 
 extern vreg_table *solve_instruction_region(unsigned char *program, unsigned short address) {
     vreg_table *result = malloc(sizeof(vreg_table));
     memset(result, -1, sizeof(vreg_table));
     result->mapped_regs = 0x0;
-
+    short counts[16];
+    memset(counts, 0, 16 * 2);
     int pc = 0;
 
 
@@ -40,10 +39,10 @@ extern vreg_table *solve_instruction_region(unsigned char *program, unsigned sho
                 if (opcode != I_BR && opcode != I_JR) {
                     char reg1 = XIS_REG1(instruction);
 
-                    TRY_INSERT_REG(reg1)
+                    ADD_COUNT(reg1)
 
                     if (opcode == I_PUSH || opcode == I_POP) {
-                        TRY_INSERT_REG(15)
+                        ADD_COUNT(15)
                     }
                 }
                 break;
@@ -52,8 +51,8 @@ extern vreg_table *solve_instruction_region(unsigned char *program, unsigned sho
                 char reg1 = XIS_REG1(instruction);
                 char reg2 = XIS_REG2(instruction);
 
-                TRY_INSERT_REG(reg1)
-                TRY_INSERT_REG(reg2)
+                ADD_COUNT(reg1)
+                ADD_COUNT(reg2)
                 break;
             }
             case 3: { // extended
@@ -61,13 +60,36 @@ extern vreg_table *solve_instruction_region(unsigned char *program, unsigned sho
                 if (opcode == I_LOADI) { 
                     char reg1 = XIS_REG1(instruction);
 
-                    TRY_INSERT_REG(reg1)
+                    ADD_COUNT(reg1)
                 }
                 break;
             }
         }
 
     }
+
+    // map the most used registers
+    while (1) {
+
+        char prev_max = -1;
+        short prev_max_value = 0;
+        for (char i = 0; i < 16; i++) {
+            if (counts[i] > prev_max_value) {
+                prev_max = i;
+                prev_max_value = counts[i];
+                counts[i] = 0;
+            }
+        }
+        if (prev_max != -1) {
+            if (!insert_reg(result, prev_max)) {
+                break;
+            }
+        } else {
+            // we out of regs
+            break;
+        }
+    }
+
     for (int i = 0; i < 7; i++) {
         if (result->mapped[i] != -1) {
             result->mapped_regs |= (1 << result->mapped[i]);
