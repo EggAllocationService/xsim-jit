@@ -5,7 +5,7 @@
 #include "xis.h"
 
 static int insert_reg(vreg_table *table, char reg) {
-    for (int i = 7; i >= 0; i--) {
+    for (int i = 6; i >= 0; i--) {
         if(table->mapped[i] == reg) return 1;
         if (table->mapped[i] == -1) {
             table->mapped[i] = reg;
