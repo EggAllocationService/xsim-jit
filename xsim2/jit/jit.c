@@ -608,7 +608,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                     break;
                 }
                 case I_POP: {
-                    GET_OR_LOAD_VREG(sp, 15, SCRATCH_REG)
+                    GET_OR_LOAD_VREG(sp, 15, SCRATCH_REG_2)
 
                     // pop value
                     gen_ptr += x64_map_mov_8_16_scaled2reg(memory, gen_ptr,
