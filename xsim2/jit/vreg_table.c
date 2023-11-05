@@ -77,9 +77,9 @@ extern vreg_table *solve_instruction_region(unsigned char *program, unsigned sho
             if (counts[i] > prev_max_value) {
                 prev_max = i;
                 prev_max_value = counts[i];
-                counts[i] = 0;
             }
         }
+        counts[prev_max] = 0;
         if (prev_max != -1) {
             if (!insert_reg(result, prev_max)) {
                 break;
