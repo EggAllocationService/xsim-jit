@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
 
           // compile entry point to a function
           xmem_virt_mem memory_info = xmem_get_virt_mem();
-          jit_prepared_function *entrypoint = jit_prepare(memory_info.memory, 0, 1);
+          jit_prepared_function *entrypoint = jit_prepare(memory_info.memory, 0, 1, 0);
 
           // simulate cpu behavior
           unsigned char result = entrypoint->function(cpu);

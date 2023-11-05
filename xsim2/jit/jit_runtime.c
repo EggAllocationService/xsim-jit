@@ -45,7 +45,7 @@ extern unsigned long compile_or_get_cached_addr(unsigned char *memory, unsigned 
     }
     if (target == NULL) {
         // target function is not prepared
-        target = jit_prepare(memory, address, 0);
+        target = jit_prepare(memory, address, 0, 0);
         ll_add_front(state->function_cache, target);
 #ifndef NDEBUG
         char * filename = malloc(80);
