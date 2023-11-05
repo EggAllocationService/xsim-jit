@@ -370,7 +370,7 @@ extern int x64_map_setb(unsigned char *dest, int pos, unsigned char rm) {
 
 extern int x64_map_setne(unsigned char *dest, int pos, unsigned char rm) {
     dest[pos] = 0x0F; // required prefix
-    dest[pos + 1] = 0x98; // SETNE rm/8
+    dest[pos + 1] = 0x95; // SETNE rm/8
     dest[pos + 2] = 0b11000000 | (rm & 7);
     return 3;
 }
