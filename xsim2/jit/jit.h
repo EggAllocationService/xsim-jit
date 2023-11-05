@@ -44,8 +44,11 @@ typedef struct jit_prepared_function {
  *
  * `is_entrypoint` Should be set to 1 if the generated code will be used as the entrypoint to the virtual program
  * This parameter allows the jit compiler to set an escape hatch to use if the debug bit gets set
+ *
+ * `internal_abi` generates a function that does not preserve any registers, ideal for recursive functions
 */
-extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short address, unsigned char is_entrypoint);
+extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short address, char is_entrypoint,
+                                          char internal_abi);
 
 /**
  * Initializes the internal state of the JIT compiler
@@ -61,5 +64,10 @@ extern jit_state *jit_get_state();
  * Sets the debug function to be called when the debug bit is set
 */
 extern void jit_set_debug_function(jit_debug_func func);
+
+/**
+ * Utility function
+*/
+extern unsigned short load_short(unsigned char *mem, int offset);
 
 #endif

@@ -5,7 +5,7 @@
 #include "jit_runtime.h"
 #include "x64_codegen.h"
 
-extern void calc_flags_test(unsigned short src, unsigned short dest, xcpu *c) {
+extern void calc_flags_test(xcpu *c, unsigned short src, unsigned short dest) {
     if ((src & dest) != 0) {
         c->state |= 1;
     } else {
@@ -13,7 +13,7 @@ extern void calc_flags_test(unsigned short src, unsigned short dest, xcpu *c) {
     }
 }
 
-extern void calc_flags_cmp(unsigned short src, unsigned short dest, xcpu *c) {
+extern void calc_flags_cmp(xcpu *c, unsigned short src, unsigned short dest) {
     if (src < dest) {
         c->state |= 1;
     } else {
@@ -21,7 +21,7 @@ extern void calc_flags_cmp(unsigned short src, unsigned short dest, xcpu *c) {
     }
 }
 
-extern void calc_flags_equ(unsigned short src, unsigned short dest, xcpu *c) {
+extern void calc_flags_equ(xcpu *c, unsigned short src, unsigned short dest) {
     if (src == dest) {
         c->state |= 1;
     } else {
@@ -45,7 +45,7 @@ extern unsigned long compile_or_get_cached_addr(unsigned char *memory, unsigned 
     }
     if (target == NULL) {
         // target function is not prepared
-        target = jit_prepare(memory, address, 0);
+        target = jit_prepare(memory, address, 0, 0);
         ll_add_front(state->function_cache, target);
 #ifndef NDEBUG
         char * filename = malloc(80);

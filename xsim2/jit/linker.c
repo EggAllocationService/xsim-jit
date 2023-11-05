@@ -63,7 +63,7 @@ extern void jit_link(linked_list_t *requests, instr_results_t *results, unsigned
                 // JMP RAX
                 unsigned long current_address = ((unsigned long) memory) + gen_ptr;
                 long jump_offset = ((long) target_address) - ((long)current_address);
-                gen_ptr += x64_map_jmp_rel32(memory, gen_ptr, ((int) jump_offset) - 5);
+                x64_map_jmp_rel32(memory, gen_ptr, ((int) jump_offset) - 5);
                 break;
             }
             case LINK_BRANCH_REL: {
@@ -76,20 +76,15 @@ extern void jit_link(linked_list_t *requests, instr_results_t *results, unsigned
                                                       RAX, CPU_STATE_REG, 2 * FLAGS_INDEX);
                 gen_ptr += x64_map_and_imm16(memory, gen_ptr,
                                              RAX, 1);
-                gen_ptr += x64_map_jz_rel8(memory, gen_ptr, 0);
-                int right_after_jz = gen_ptr;
-                // store new pc
-                gen_ptr += x64_map_mov_imm2indirect(memory, gen_ptr,
-                                                    req->target_pc, CPU_STATE_REG, PC_INDEX * 2);
+                unsigned long current_address = ((unsigned long) memory) + gen_ptr;     
+                long jump_offset = ((long) target_address) - ((long)current_address) - 6;
 
-                unsigned long current_address = ((unsigned long) memory) + gen_ptr;
+                gen_ptr += x64_map_jnz_rel32(memory, gen_ptr,
+                                            (int) jump_offset);
 
-                
-                long jump_offset = ((long) target_address) - ((long)current_address);
-                gen_ptr += x64_map_jmp_rel32(memory, gen_ptr, ((int) jump_offset) - 5);
-
-                char amount_to_jump = (char) (gen_ptr - right_after_jz) ;
-                memory[right_after_jz - 1] = amount_to_jump;
+                // calculate jump offset to skip the NOPS
+                int skip_jump_offset = (req->gen_code_length - (gen_ptr - relative_start)) - 5;
+                jump_offset += x64_map_jmp_rel32(memory, gen_ptr, skip_jump_offset);
 
             }
             default: {

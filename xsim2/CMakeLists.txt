@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.18)
 project(Assignment4)
 
+set(CMAKE_C_STANDARD 99)
+
 set(CMAKE_EXPORT_COMPILE_COMMANDS true)
 
 set(RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
