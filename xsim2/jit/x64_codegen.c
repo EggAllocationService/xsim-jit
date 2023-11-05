@@ -332,6 +332,16 @@ extern int x64_map_jmp_rel32(unsigned char *dest, int pos, int offset) {
     return 5;
 }
 
+extern int x64_map_jnz_rel32(unsigned char *dest, int pos, int offset) {
+    dest[pos] = 0x0F;
+    dest[pos + 1] = 0x85;
+    for (int i = 0; i < 4; i++) {
+        dest[pos + 2 + i] = (offset >> (i * 8)) & 0xFF;
+    }
+
+    return 6;
+}
+
 
 /**
  * Stuff for conditionals

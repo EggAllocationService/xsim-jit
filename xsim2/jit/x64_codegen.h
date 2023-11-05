@@ -256,6 +256,11 @@ extern int x64_map_jz_rel8(unsigned char *dest, int pos, char offset);
 extern int x64_map_jmp_rel32(unsigned char *dest, int pos, int offset);
 
 /**
+ * Encodes the x64 JNZ instrucion, with a 32 bit 2's compliment offest
+*/
+extern int x64_map_jnz_rel32(unsigned char *dest, int pos, int offset);
+
+/**
  * Contitional statements
 */
 /*
