@@ -505,6 +505,9 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                     case I_LOAD: {
                         gen_ptr += x64_map_mov_8_16_scaled2reg(memory, gen_ptr,
                                                                dest, VMEM_BASE_REG, src, MOV_SCALE_16);
+                        // swap byte order
+                        gen_ptr += x64_map_ror_rm16_imm8(memory, gen_ptr,
+                                                         dest, 8);
                         STORE_IF_NEEDED(dest, vdest)
                         break;
                     }
