@@ -424,6 +424,6 @@ extern int x64_map_inc_dec_reg16(unsigned char *dest, int pos, unsigned char mod
         dest[pos++] = REX(0, 0, rm);
     }
     dest[pos++] = 0xFF; // inc/dec opcode
-    dest[pos++] = 0b11000000 | (mode << 3) | (rm & 7);
+    dest[pos++] = MODRM(0b11, mode, rm);
     return pos - initial_pos;
 }
