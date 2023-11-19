@@ -583,6 +583,10 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                     emitted_ret = 1;
                     break;
                 }
+                default: {
+                    invalid_op = 1;
+                    break;
+                }
             }
         } else { // 1 operand
             unsigned char vreg = XIS_REG1(instruction);
