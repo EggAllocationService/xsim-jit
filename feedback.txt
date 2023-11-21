@@ -1,0 +1,87 @@
+GRADE:  NOT YET GRADED
+
+Assignment 4 Feedback:
+
+Total Grade:   / 50
+
+General Comments:
+
+
+Functionality:   / 20
+   Based on the tests form gitlab.
+
+Problem 1 Solution Quality:   / 5
+    See rubric below.
+
+Problem 2 Solution Quality:   / 15
+    See rubric below.
+
+Comments:
+
+
+Code Clarity:       / 10
+    See rubric below.
+
+Comments: 
+
+
+
+===========================================================
+RUBRICS
+
+Solution Quality for Problems 1 and 2
+-------------------------------------
+  (10/10) Excellent Solutions
+  - Program is complete
+  - Algorithm and data structures are appropriate 
+     - marks may be deducted for very inefficient solutions
+  - All tests are passing.
+
+  (8/10) Good Solution
+  - Program is complete
+  - Algorithm or data structures are inefficient 
+  - Nearly all tests are passing.
+
+  (6/10) Marginal Solution
+  - Implementation has some minor bugs. (Some tests are passing)
+  - Poor approach, not well thought out.
+
+  (4/10) Poor Solution
+  - All tests are failing
+  - Implementation has major flaws.
+
+  (2/10) Very Poor Solution
+  - Attempt has been made
+
+-----------------------------------------------------------
+Code Clarity
+-------------
+  (10/10) Professional looking code should be:
+  - well commented
+  - follows style guidelines
+  - consistent formatting
+  - is easy to read
+  - does not have any function definitions in header files 
+    (prototype declarations are ok)
+
+  (8/10) Code looks good if:
+  - follows style guidelines
+  - consistent formatting
+  - is easy to read
+  - does not have any function definitions in header files 
+
+  (6/10) Code is mostly readable if
+  - somewhat follows style guidelines
+  - mostly consistent formatting
+  - does not have any function definitions in header files 
+  - marker is having difficulty understanding your code
+
+  (4/10) Code is hard to read if
+  - follows a few of the guidelines
+  - somewhat consistent formatting
+  - has function definitions in header files 
+  - marker can barely understand your code
+
+  (2/10) Code is illegible
+  - if it cannot be understood
+
