@@ -14,14 +14,11 @@ static jit_state *state;
 
 extern void jit_init_state() {
     state = malloc(sizeof(jit_state));
-    state->guest_debug_bit = 0;
     state->function_cache = ll_new();
 }
 extern jit_state *jit_get_state() {
     return state;
 }
-
-
 
 #define VREG_IS_MAPPED(reg) ((table->mapped_regs & (1 << (reg))) > 0)
 
@@ -65,7 +62,6 @@ static unsigned short switch_endianness(unsigned short i) {
     return (i << 8) | (i >> 8);
 }
 
-
 extern unsigned short load_short(unsigned char *mem, int offset) {
     unsigned short result = 0;
     result |= mem[offset] << 8;
@@ -86,6 +82,7 @@ static int load_virtual_registers(unsigned char *memory, int gen_ptr, vreg_table
     }
     return offset;
 }
+
 static int store_mapped_virtual_registers(unsigned char *memory, int gen_ptr, vreg_table *table, char only_caller_save) {
     int offset = 0;
     int max_index = 7;
@@ -109,7 +106,6 @@ static char get_mapping(vreg_table *table, char vreg) {
     return -1;
 }
 
-
 extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short address, char is_entrypoint,
                                           char internal_abi) {
 
@@ -126,7 +122,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
     vreg_table *table = solve_instruction_region(program, address);
 
     /**
-     * Optimization for recursive functions: internal_abi preserves registers between calls, allowing fast
+     * Optimization for recursive functions: disabling internal_abi preserves registers between calls, allowing fast
      * recursion
      */
      if (!internal_abi) {
@@ -179,19 +175,18 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
          if (CPU_STATE_REG != RDI) {
              gen_ptr += x64_map_mov_reg2reg(memory, gen_ptr, RDI, CPU_STATE_REG);
          }
-
-
-         if (gen_ptr < 20) {
+        
+         if (gen_ptr < PREAMBLE_LENGTH) {
              while (gen_ptr < 20) {
                  memory[gen_ptr++] = 0x90; // NOP
              }
          }
          /**
-            * BEGIN JUMP TARGET
-            *
-            * An out-of-procedure jump that needs to skip the preamble will land 24 instructions after the start of
-            * a generated function
-            */
+           * BEGIN JUMP TARGET
+           *
+           * An out-of-procedure jump that needs to skip the preamble will land 24 instructions after the start of
+           * a generated function
+           */
          // hardcode the address of the virtual memory in r11
          gen_ptr += x64_map_move_imm2reg(memory, gen_ptr, VMEM_BASE_REG, (unsigned long) program);
 
@@ -220,6 +215,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
     char invalid_op = 0;
     while (1) {
 
+        // fetch an instruction
         unsigned short instruction = load_short(program, pc);
         pc += 2;
         unsigned char opcode = instruction >> 8;
@@ -307,9 +303,6 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                             printf("Assertion failed: check CALL_STATIC_OVERWRITE_SIZE! (%d)", overwritten_len);
                             exit(-4);
                         }
-                        memory[gen_ptr++] = 0x90;
-                        memory[gen_ptr++] = 0x90;
-                        memory[gen_ptr++] = 0x90;
 
                         gen_ptr += x64_map_mov_reg2reg(memory, gen_ptr, CPU_STATE_REG, RDI);
                         gen_ptr += x64_map_call(memory, gen_ptr, RAX);
@@ -340,8 +333,6 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                         gen_ptr += x64_map_call(memory, gen_ptr, RAX);
 
                     }
-
-
                     break;
                 }
                 default: {

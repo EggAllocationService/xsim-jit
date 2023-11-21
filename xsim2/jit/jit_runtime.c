@@ -5,33 +5,6 @@
 #include "jit_runtime.h"
 #include "x64_codegen.h"
 
-extern void calc_flags_test(xcpu *c, unsigned short src, unsigned short dest) {
-    if ((src & dest) != 0) {
-        c->state |= 1;
-    } else {
-        c->state &= ~1;
-    }
-}
-
-extern void calc_flags_cmp(xcpu *c, unsigned short src, unsigned short dest) {
-    if (src < dest) {
-        c->state |= 1;
-    } else {
-        c->state &= ~1;
-    }
-}
-
-extern void calc_flags_equ(xcpu *c, unsigned short src, unsigned short dest) {
-    if (src == dest) {
-        c->state |= 1;
-    } else {
-        c->state &= ~1;
-    }
-}
-
-// header of a generated function, we want to skip this if we're doing a jump
-#define PREAMBLE_LENGTH 20
-
 extern unsigned long compile_or_get_cached_addr(unsigned char *memory, unsigned short address) {
     jit_state *state = jit_get_state();
     ll_iterator_t *iter = ll_iterator_new(state->function_cache);
@@ -47,6 +20,10 @@ extern unsigned long compile_or_get_cached_addr(unsigned char *memory, unsigned 
         // target function is not prepared
         target = jit_prepare(memory, address, 0, 0);
         ll_add_front(state->function_cache, target);
+
+        /**
+         * Dump generated functions if compiled in debug mode
+        */
 #ifndef NDEBUG
         char * filename = malloc(80);
         sprintf(filename, "jit_func_%x_%lx.bin", address, (unsigned long) target->function);
@@ -55,8 +32,6 @@ extern unsigned long compile_or_get_cached_addr(unsigned char *memory, unsigned 
         fclose(fp);
         free(filename);
 #endif
-       //printf("Wrote %d bytes to %s\n\n", target->generated_size, filename);
-
     }
 
     ll_iterator_destroy(iter);
@@ -64,14 +39,11 @@ extern unsigned long compile_or_get_cached_addr(unsigned char *memory, unsigned 
 }
 
 extern unsigned long call_dynamic(unsigned char *memory, unsigned short address) {
-    //printf("JIT: Dynamic call to %x\n", address);
     return compile_or_get_cached_addr(memory, address);
 }
 extern unsigned long jump_dynamic(unsigned char *memory, unsigned short address) {
-    //printf("JIT: Dynamic jump to %x\n", address);
     return compile_or_get_cached_addr(memory, address) + PREAMBLE_LENGTH;
 }
-
 
 #define RAX 0
 

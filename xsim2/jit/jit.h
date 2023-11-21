@@ -21,8 +21,6 @@ typedef jit_func jit_debug_func;
 typedef struct jit_state {
     unsigned long escape_hatch;
     unsigned long escape_registers[7];
-    unsigned char guest_debug_bit;
-    jit_debug_func debug_function;
     linked_list_t function_cache;
 } jit_state;
 

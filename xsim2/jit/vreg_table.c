@@ -25,7 +25,6 @@ extern vreg_table *solve_instruction_region(unsigned char *program, unsigned sho
     memset(counts, 0, 16 * 2);
     int pc = 0;
 
-
     while (1) {
         unsigned short instruction = load_short(program, pc + address);
         unsigned char opcode = (instruction >> 8);

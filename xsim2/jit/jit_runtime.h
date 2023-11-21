@@ -1,27 +1,8 @@
 #pragma once
-/*
-    These functions may be called by generated code, usually because it was simpler to emit a function call
-        than these functions directly
-
-    It's worse for performance, but frankly I don't care because I'm not going to implement another eight variants of MOV
-*/
-
 #define CALL_STATIC_OVERWRITE_SIZE 35
 
-/**
- * Sets the lowest bit of the cpu flags to (src & dest) == 0
-*/
-extern void calc_flags_test(xcpu *c, unsigned short src, unsigned short dest);
-
-/**
- * Sets the lowest bit of the cpu flags to src < dest
-*/
-extern void calc_flags_cmp(xcpu *c, unsigned short src, unsigned short dest);
-
-/**
- * Sets the lowest bit of the cpu flags to src == dest
-*/
-extern void calc_flags_equ(xcpu *c, unsigned short src, unsigned short dest);
+// header of a generated function, we want to skip this if we're doing a jump
+#define PREAMBLE_LENGTH 20
 
 /**
  * Prepares and jumps to a target virtual address
