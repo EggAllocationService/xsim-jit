@@ -17,9 +17,6 @@ extern void jit_init_state() {
     state->guest_debug_bit = 0;
     state->function_cache = ll_new();
 }
-extern void jit_set_debug_function(jit_debug_func func) {
-    state->debug_function = func;
-}
 extern jit_state *jit_get_state() {
     return state;
 }
@@ -48,8 +45,6 @@ extern jit_state *jit_get_state() {
 #define STORE_ALWAYS(physreg, vreg) gen_ptr += x64_map_mov_reg2indirect(memory, gen_ptr, \
                                                             physreg, CPU_STATE_REG, (2 * vreg));
 
-#define PUSH_VALUE_TO_STACK(physreg)
-
 /**
  * Moves the function address into `FUNC_ADDR_REG` then calls that register
 */
@@ -65,9 +60,6 @@ extern jit_state *jit_get_state() {
 #define SUBMIT_LINK_REQUEST(target) req->target_pc = target; \
                                 req->gen_code_length = (((unsigned long) memory) + gen_ptr) - (req->from); \
                                 ll_add_front(link_requests, req);
-
-
-
 
 static unsigned short switch_endianness(unsigned short i) {
     return (i << 8) | (i >> 8);
@@ -132,6 +124,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
 
     // generate vreg -> reg mapping table
     vreg_table *table = solve_instruction_region(program, address);
+
     /**
      * Optimization for recursive functions: internal_abi preserves registers between calls, allowing fast
      * recursion
@@ -230,7 +223,9 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
         unsigned short instruction = load_short(program, pc);
         pc += 2;
         unsigned char opcode = instruction >> 8;
+
         istr_container_push(instr_mapping, ((unsigned long)memory) + gen_ptr);
+
         if (XIS_NUM_OPS(opcode) == 3) { // immediate (extended)
             unsigned short extended_value = load_short(program, pc);
             pc += 2;
@@ -676,15 +671,15 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                     break;
                 }
                 case I_JR: {
-                    // make link request
                     BEGIN_LINK_REQUEST(LINK_JUMP_REL)
 
-                    // push execution state
+                    // save execution state
                     gen_ptr += x64_map_push(memory, gen_ptr, CPU_STATE_REG);
                     gen_ptr += store_mapped_virtual_registers(memory, gen_ptr, table, 0);
 
                     gen_ptr += x64_map_mov_reg2reg(memory, gen_ptr,
                                                    VMEM_BASE_REG, RDI);
+
                     char offset = (char) (instruction & 0xFF);
                     unsigned short target = pc + offset - 2;
                     gen_ptr += x64_map_move_imm2reg(memory, gen_ptr,
@@ -695,7 +690,6 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                     // restore execution state
                     gen_ptr += x64_map_pop(memory, gen_ptr, CPU_STATE_REG);
                     gen_ptr += load_virtual_registers(memory, gen_ptr, table, 1);
-                    gen_ptr += x64_map_move_imm2reg(memory, gen_ptr, VMEM_BASE_REG, ((unsigned long) program));
 
                     gen_ptr += x64_map_absolute_jmp(memory, gen_ptr, RAX);
 
@@ -804,7 +798,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
 
     
     /**
-     * Post generation: 
+     * Post gen: 
      * Update program counter to procedure end position
     */
     if (!emitted_ret) {
@@ -865,6 +859,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
     gen_ptr += x64_map_move_imm2reg(memory, gen_ptr, RAX, 0);
     gen_ptr += x64_map_ret(memory, gen_ptr);
 
+    // link in-procedure jumps if possible
     jit_link(link_requests, instr_mapping, memory);
 
     jit_prepared_function *result = malloc(sizeof(jit_prepared_function));
@@ -874,6 +869,9 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
     result->generated_size = gen_ptr;
     result->translated_instruction_count = processed_instructions;
 
+    /**
+     * Cleanup
+    */
     ll_destroy(link_requests);
 
     free(instr_mapping->addrs);
