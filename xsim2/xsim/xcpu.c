@@ -8,7 +8,7 @@
 #include "xmem.h"
 
 /**
- * Macro for generating a switch case appling an integer operation to the two registers
+ * Macro for generating a switch case applying an integer operation to the two registers
 */
 #define XIS_TWO_REG_INT_OP(x, y) case x: c->regs[dest] = c->regs[dest] y c->regs[src]; break;
 
