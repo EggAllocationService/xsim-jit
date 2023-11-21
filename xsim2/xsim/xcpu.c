@@ -45,15 +45,15 @@ extern int xcpu_execute(xcpu *c) {
     size_t dest = XIS_REG2(instruction);
 
     switch (opcode) {
-      XIS_TWO_REG_INT_OP(I_ADD, +);
-      XIS_TWO_REG_INT_OP(I_SUB, -);
-      XIS_TWO_REG_INT_OP(I_MUL, *);
-      XIS_TWO_REG_INT_OP(I_DIV, /);
-      XIS_TWO_REG_INT_OP(I_AND, &);
-      XIS_TWO_REG_INT_OP(I_OR, |);
-      XIS_TWO_REG_INT_OP(I_XOR, ^);
-      XIS_TWO_REG_INT_OP(I_SHR, >>);
-      XIS_TWO_REG_INT_OP(I_SHL, <<);
+      XIS_TWO_REG_INT_OP(I_ADD, +)
+      XIS_TWO_REG_INT_OP(I_SUB, -)
+      XIS_TWO_REG_INT_OP(I_MUL, *)
+      XIS_TWO_REG_INT_OP(I_DIV, /)
+      XIS_TWO_REG_INT_OP(I_AND, &)
+      XIS_TWO_REG_INT_OP(I_OR, |)
+      XIS_TWO_REG_INT_OP(I_XOR, ^)
+      XIS_TWO_REG_INT_OP(I_SHR, >>)
+      XIS_TWO_REG_INT_OP(I_SHL, <<)
       case I_TEST:
         if ((c->regs[src] & c->regs[dest]) != 0) {
           c->state |= 1;
