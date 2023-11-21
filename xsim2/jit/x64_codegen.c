@@ -8,7 +8,7 @@
 int x64_map_mov_reg2reg(unsigned char *dest, int pos, unsigned char reg1, unsigned char reg2) {
     dest[pos] = REX(1, reg1, reg2); // REX prefix for x86_64 registers
     dest[pos + 1] = 0x89; // MOV r16 -> r/m16
-    dest[pos + 2] = 0b11000000 | ((reg1 & 7) << 3) | (reg2 & 7); // encode registers
+    dest[pos + 2] = MODRM(3, reg1, reg2); // encode registers
     return 3;
 }
 
@@ -59,7 +59,7 @@ extern int x64_map_movzx_indirect2reg(unsigned char *dest, int pos, unsigned cha
 extern int x64_map_mov_indirect2reg64(unsigned char *dest, int pos, unsigned char target, unsigned char source, unsigned int offset) {
     dest[pos++] = REX(1, target, source); // REX prefix for x86_64 registers
     dest[pos++] = 0x8B; // MOV, r/m64 -> r64
-    dest[pos++] = 0b10000000 | ((target & 7) << 3) | (source & 7); // MODRM with 16 bit immediate  offset
+    dest[pos++] = MODRM(0b10, target, source);
     for (int i = 0; i < 4; i++) {
         dest[pos++] = (offset >> (i * 8)) & 0xFF;
     }
@@ -71,7 +71,7 @@ extern int x64_map_mov_reg2indirect(unsigned char *dest, int pos, unsigned char 
     dest[pos++] = 0x66; // 16 bit operands 
     dest[pos++] = REX(0, source, target); // REX prefix for x86_64 registers
     dest[pos++] = 0x89; // MOV r16 -> r/m16
-    dest[pos++] = 0b10000000 | ((source & 7) << 3) | (target & 7); // MODRM with 16 bit immediate  offset
+    dest[pos++] = MODRM(0b10, source, target); 
     for (int i = 0; i < 4; i++) {
         dest[pos++] = (offset >> (i * 8)) & 0xFF;
     }
@@ -82,7 +82,7 @@ extern int x64_map_mov_reg2indirect64(unsigned char *dest, int pos, unsigned cha
     int initialpos = pos;
     dest[pos++] = REX(1, source, target); // REX prefix for x86_64 registers
     dest[pos++] = 0x89; // MOV r64 -> r/m64
-    dest[pos++] = 0b10000000 | ((source & 7) << 3) | (target & 7); // MODRM with 16 bit immediate  offset
+    dest[pos++] = MODRM(0b10, source, target); 
     for (int i = 0; i < 4; i++) {
         dest[pos++] = (offset >> (i * 8)) & 0xFF;
     }
@@ -96,7 +96,7 @@ extern int x64_map_mov_imm2indirect(unsigned char *dest, int pos, unsigned short
         dest[pos++] = 0b01000001; // REX.B
     }
     dest[pos++] = 0xC7; // MOV imm16 -> r/m
-    dest[pos++] = 0b01000000 | (target & 7); // encode base register
+    dest[pos++] = MODRM(0b01, 0, target);
     dest[pos++] = offset;
     dest[pos++] = value & 0xFF;
     dest[pos++] = (value >> 8) & 0xFF;
@@ -106,14 +106,14 @@ extern int x64_map_mov_imm2indirect(unsigned char *dest, int pos, unsigned short
 extern int x64_map_mov_m8_2_r8(unsigned char *dest, int pos, unsigned short source, unsigned char target) {
     // source is r/m, target is r
     dest[pos] = 0x8A; // MOV r/m8 -> r8
-    dest[pos + 1] = 0b01000000 | ((target & 7) << 3) | (source & 7); // MODRM w/ 8 bit offset
+    dest[pos + 1] = MODRM(0b01, target, source);
     dest[pos + 2] = 0x0; // no offset
     return 3;
 }
 extern int x64_map_mov_r8_2_m8(unsigned char *dest, int pos, unsigned short source, unsigned char target) {
     // source is r, target is r/m
     dest[pos] = 0x8A; // MOV r/m8 -> r8
-    dest[pos + 1] = 0b01000000 | ((source & 7) << 3) | (target & 7); // MODRM w/ 8 bit offset
+    dest[pos + 1] = MODRM(0b01, source, target);
     dest[pos + 2] = 0x0; // no offset
     return 3;
 }

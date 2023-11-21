@@ -1,12 +1,9 @@
 #pragma once
 
-
 /**
  * Encodes the x64 `ret` instruction
 */
 extern int x64_map_ret(unsigned char *dest, int pos);
-
-
 
 /**
  * Encodes the x64 `PUSH` instruction for a 64 bit register
@@ -237,6 +234,9 @@ extern int x64_map_xchg_r8(unsigned char *dest, int pos, unsigned char reg, unsi
 extern int x64_map_absolute_jmp(unsigned char *dest, int pos, unsigned char reg);
 
 
+/**
+ * Constants for x64_map_inc_dec_indirect
+*/
 #define MODE_DEC 1
 #define MODE_INC 0
 /**
@@ -294,9 +294,8 @@ extern int x64_map_setne(unsigned char *dest, int pos, unsigned char rm);
 extern int x64_map_test_reg2reg16(unsigned char *dest, int pos, unsigned char reg, unsigned char rm);
 
 /**
-* Load/Store instructions
+* Load/Store instruction constants
 */
-
 #define MOV_SCALE_8 0
 #define MOV_SCALE_16 1
 /**
@@ -324,6 +323,7 @@ extern int x64_map_mov_8_16_reg2scaled(unsigned char *dest, int pos, unsigned ch
 extern int x64_map_ror_rm16_imm8(unsigned char *dest, int pos, unsigned char rm, char amount);
 
 /**
-* Increments or decrements `rm`
+ * Increments or decrements register `rm`
+ * @param mode should be one of `MODE_INC` or `MODE_DEC`
 */
 extern int x64_map_inc_dec_reg16(unsigned char *dest, int pos, unsigned char mode, unsigned char rm);
