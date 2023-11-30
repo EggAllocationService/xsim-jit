@@ -1,25 +1,25 @@
-GRADE:  NOT YET GRADED
+GRADE:  50
 
 Assignment 4 Feedback:
 
-Total Grade:   / 50
+Total Grade:  50 / 50
 
 General Comments:
 
 
-Functionality:   / 20
+Functionality: 20  / 20
    Based on the tests form gitlab.
 
-Problem 1 Solution Quality:   / 5
+Problem 1 Solution Quality:   5/ 5
     See rubric below.
 
-Problem 2 Solution Quality:   / 15
+Problem 2 Solution Quality:  15 / 15
     See rubric below.
 
 Comments:
 
 
-Code Clarity:       / 10
+Code Clarity:     10 / 10
     See rubric below.
 
 Comments: 
