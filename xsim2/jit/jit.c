@@ -258,7 +258,6 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                     break;
                 }
                 case I_CALL: {
-                    GET_OR_LOAD_VREG(sp, 15, SCRATCH_REG)
                     if(extended_value != address) {
                         // call_static will overwrite this region, so repeated calls are faster
                         // there are 36 bytes in this block
@@ -266,21 +265,6 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                         // save mapped registers
                         gen_ptr += store_mapped_virtual_registers(memory, gen_ptr, table, 0);
 
-
-
-                        // sub 2 from sp
-                        gen_ptr += x64_map_inc_dec_reg16(memory, gen_ptr,
-                                                         MODE_DEC, sp);
-                        gen_ptr += x64_map_inc_dec_reg16(memory, gen_ptr,
-                                                         MODE_DEC, sp);
-                        // write return address to scratch
-                        gen_ptr += x64_map_move_imm2reg(memory, gen_ptr,
-                                                        SCRATCH_REG_2, switch_endianness(pc));
-                        // store return address on stack
-                        gen_ptr += x64_map_mov_8_16_reg2scaled(memory, gen_ptr,
-                                                               SCRATCH_REG_2, VMEM_BASE_REG, sp, MOV_SCALE_16);
-                        // write new stack pointer
-                        STORE_ALWAYS(sp, 15)
 
                         int start = gen_ptr;
                         unsigned long call_start = ((unsigned long)memory) + gen_ptr;
@@ -312,10 +296,6 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                         // reload memory register
                     } else {
                         // recursive function, so register mapping is guaranteed to be the same
-
-                        gen_ptr += x64_map_inc_dec_reg16(memory, gen_ptr, MODE_DEC, sp);
-                        gen_ptr += x64_map_inc_dec_reg16(memory, gen_ptr, MODE_DEC, sp);
-                        STORE_ALWAYS(sp, 15)
 
                         // prevent recursive compilation
                         if (!internal_abi) {
@@ -526,25 +506,6 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
         } else if (XIS_NUM_OPS(opcode) == 0) { // no operands
             switch (opcode) {
                 case I_RET:{
-                    GET_OR_LOAD_VREG(sp, 15, SCRATCH_REG)
-
-                    // pop pc from stack
-                    gen_ptr += x64_map_mov_8_16_scaled2reg(memory, gen_ptr,
-                                                           SCRATCH_REG_2, VMEM_BASE_REG, sp, MOV_SCALE_16);
-
-                    // stackptr ++
-                    gen_ptr += x64_map_inc_dec_reg16(memory, gen_ptr, MODE_INC, sp);
-                    gen_ptr += x64_map_inc_dec_reg16(memory, gen_ptr, MODE_INC, sp);
-
-                    STORE_IF_NEEDED(sp, 15)
-
-                    // switch endianness
-                    gen_ptr += x64_map_ror_rm16_imm8(memory, gen_ptr,
-                                                     SCRATCH_REG_2, 8);
-
-                    // store new pc value in cpu struct
-                    gen_ptr += x64_map_mov_reg2indirect(memory, gen_ptr,
-                                                        SCRATCH_REG_2, CPU_STATE_REG, PC_INDEX * 2);
 
                     emitted_ret = 1;
                     break;
@@ -579,23 +540,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
             GET_OR_LOAD_VREG(reg, vreg, SCRATCH_REG)
             switch (opcode) {
                 case I_PUSH: {
-                    // switch endianness
-                    gen_ptr += x64_map_ror_rm16_imm8(memory, gen_ptr,
-                                                     reg, 8);
-
-                    // sub 2 from stack pointer
-                    GET_OR_LOAD_VREG(sp, 15, SCRATCH_REG_2)
-                    gen_ptr += x64_map_inc_dec_reg16(memory, gen_ptr,
-                                                     MODE_DEC, sp);
-                    gen_ptr += x64_map_inc_dec_reg16(memory, gen_ptr,
-                                                     MODE_DEC, sp);
-                    // push value to stack
-                    gen_ptr += x64_map_mov_8_16_reg2scaled(memory, gen_ptr,
-                                                           reg, VMEM_BASE_REG, sp, MOV_SCALE_16);
-                    gen_ptr += x64_map_ror_rm16_imm8(memory, gen_ptr,
-                                                     reg, 8);
-
-                    STORE_IF_NEEDED(sp, 15)
+                    gen_ptr += x64_map_push(memory, gen_ptr, reg);
                     break;
                 }
                 case I_NEG: {
@@ -632,20 +577,7 @@ extern jit_prepared_function *jit_prepare(unsigned char *program, unsigned short
                     break;
                 }
                 case I_POP: {
-                    GET_OR_LOAD_VREG(sp, 15, SCRATCH_REG_2)
-
-                    // pop value
-                    gen_ptr += x64_map_mov_8_16_scaled2reg(memory, gen_ptr,
-                                                           reg, VMEM_BASE_REG, sp, MOV_SCALE_16);
-                    // switch endianness
-                    gen_ptr += x64_map_ror_rm16_imm8(memory, gen_ptr,
-                                                     reg, 8);
-
-                    // stackptr ++
-                    gen_ptr += x64_map_inc_dec_reg16(memory, gen_ptr, MODE_INC, sp);
-                    gen_ptr += x64_map_inc_dec_reg16(memory, gen_ptr, MODE_INC, sp);
-
-                    STORE_IF_NEEDED(sp, 15)
+                    gen_ptr += x64_map_pop(memory, gen_ptr, reg);
                     STORE_IF_NEEDED(reg, vreg)
                     break;
                 }
