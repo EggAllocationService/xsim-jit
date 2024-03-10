@@ -39,10 +39,6 @@ extern vreg_table *solve_instruction_region(unsigned char *program, unsigned sho
                     char reg1 = XIS_REG1(instruction);
 
                     ADD_COUNT(reg1)
-
-                    if (opcode == I_PUSH || opcode == I_POP) {
-                        ADD_COUNT(15)
-                    }
                 }
                 break;
             }
